@@ -34,7 +34,7 @@ def common_noun_feature(hd_body_dict,max_len):
     return(len(hd_noun.intersection(body_noun))/len(hd_noun))
     #return (len(hd_noun.intersection(body_noun)) / max_len)
 
-def common_adjective_feature(hd_body_dict,max_len):
+def common_verb_feature(hd_body_dict,max_len):
     hd_verb=set()
     body_verb=set()
     for i,k in enumerate(hd_body_dict["body_pos"]):
@@ -54,7 +54,7 @@ def common_adjective_feature(hd_body_dict,max_len):
         return 0
     return(len(hd_verb.intersection(body_verb))/len(hd_verb))
 
-def common_verb_feature(hd_body_dict,max_len):
+def common_adjective_feature(hd_body_dict,max_len):
     hd_adj=set()
     body_adj=set()
     print(hd_body_dict["hd_tok"])

@@ -29,6 +29,7 @@ def max_len2(train_data,key):
 
     return sum(max_length)/len(max_length)
 def train_classifier(dataset,labels,training_ids):
+    print (func_list)
     classifier = LogisticRegression(penalty='l1')
     training_data=[]
     training_labels=[]
@@ -36,7 +37,7 @@ def train_classifier(dataset,labels,training_ids):
     training_index=[]
     max_hd=0
     for i,k in enumerate(dataset):
-        print(i)
+        #print(i)
         if(k["id"] not in training_ids):
             continue
         train_data.append(k)
