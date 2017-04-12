@@ -79,8 +79,8 @@ def test_classifier(dataset,classifier,labels,test_ids,max_length):
     pred_labels=classifier.predict(test_vector)
     return test_labels,pred_labels,test_data,test_hd,test_body
 
-dataset=pickle.load(open("dataset_pickle.pk","rb"))
-labels=pickle.load(open("labels.pk","rb"))
+dataset=pickle.load(open("dataset_pickle1.pk","rb"))
+labels=pickle.load(open("labels1.pk","rb"))
 training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
 test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
 
@@ -97,7 +97,7 @@ file_output=open("logger_file.txt","w")
 logger=file_output.write
 logger("%s\n"%a)
 for i,k in enumerate(pred_labels):
-    if(actual_labels[i]!=k):
+    if(actual_labels[i]!=k):        
         logger("%s|%s|%s|%s|%s|%s|%s\n"%(test_hd[i],test_body[i],k,actual_labels[i],test_data[i][0],test_data[i][1],test_data[i][2]))
 file_output.close()
 
