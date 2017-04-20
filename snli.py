@@ -29,7 +29,7 @@ def get_timeseries_nlp(text, nlp, timesteps):
 	word_vec_dim = 300
 	tensor = np.zeros((nb_samples, timesteps, word_vec_dim))
 	for i in xrange(len(text)):
-		tokens = nlp(str(text[i]).decode('utf-8'))
+		tokens = nlp(str(text[i]).encode('utf-8').decode('utf-8'))
 		for j in xrange(len(tokens)):
 			if j < timesteps:
 				tensor[i,j,:] += tokens[j].vector
@@ -47,13 +47,13 @@ max_len = 405
 word_vec_dim = 300
 nlp = English()
 
-# language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
-# language_model.add(LSTM(200,return_sequences=True))
-# language_model.add(LSTM(200, return_sequences=False))
-# language_model.add(Dense(3, activation='softmax'))
+language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
+language_model.add(LSTM(200,return_sequences=True))
+language_model.add(LSTM(200, return_sequences=False))
+language_model.add(Dense(3, activation='softmax'))
 
-# language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
-# language_model.summary()
+language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
+language_model.summary()
 
 headline_data = {}
 body_data = {}
