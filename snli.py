@@ -33,21 +33,21 @@ def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return izip_longest(*args, fillvalue=fillvalue)
 
-# language_model = Sequential()
+language_model = Sequential()
 
-# hypo_dim = 300
-# prem_dim = 300
-# max_len = 405
-# word_vec_dim = 300
-# nlp = English()
+hypo_dim = 300
+prem_dim = 300
+max_len = 405
+word_vec_dim = 300
+nlp = English()
 
-# language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
-# language_model.add(LSTM(200,return_sequences=True))
-# language_model.add(LSTM(200, return_sequences=False))
-# language_model.add(Dense(3, activation='softmax'))
+language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
+language_model.add(LSTM(200,return_sequences=True))
+language_model.add(LSTM(200, return_sequences=False))
+language_model.add(Dense(3, activation='softmax'))
 
-# language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
-# language_model.summary()
+language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
+language_model.summary()
 
 headline_data = {}
 body_data = {}
@@ -110,6 +110,28 @@ print len(training_dict_data)
 print batch_ids
 
 sys.exit()
+
+indices = np.linspace(0,len(training_dict_data)-1,dtype='int')
+
+for i in range(0, len(indices)-1):
+	start = indices[i]
+	end = indices[i+1]
+	timesteps_headline = 12
+	timesteps_body = 393
+	batch = training_dict_data[start:end]
+	bodies = batch[:,0]
+	headlines = batch[:,1]
+	stances = batch[:,2]
+
+	headlines_batch = get_timeseries_nlp(headlines, nlp, timesteps_headline)
+	bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
+
+	x = np.hstack((headlines_batch, bodies_batch))
+	y = get_stance_matrix(stances, labelencoder)
+
+	loss = language_model.train_on_batch(x,y)
+	print "Iteration Done"
+	break
 
 # print len(training_ids)
 # for i in xrange(16):
