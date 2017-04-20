@@ -134,10 +134,18 @@ for i in range(0, len(indices)-1):
 	bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
 	x = np.hstack((headlines_batch, bodies_batch))
-	y = [int(i) for i in stances]
-
+	# y = [int(i) for i in stances]
+	y = []
+	for i in stances:
+		if i == 0:
+			y.append([1,0,0])
+		elif i == 1:
+			y.append([0,1,0])
+		elif i == 2:
+			y.append([0,0,1])
 	loss = language_model.train_on_batch(x,y)
 	print "Iteration Done"
+	break
 
 # print len(training_ids)
 # for i in xrange(16):
