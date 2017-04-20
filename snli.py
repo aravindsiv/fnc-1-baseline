@@ -137,11 +137,11 @@ for i in range(0, len(indices)-1):
 	# y = [int(i) for i in stances]
 	y = []
 	for i in stances:
-		if i == 0:
+		if int(i) == 0:
 			y.append([1,0,0])
-		elif i == 1:
+		elif int(i) == 1:
 			y.append([0,1,0])
-		elif i == 2:
+		elif int(i) == 2:
 			y.append([0,0,1])
 	loss = language_model.train_on_batch(x,y)
 	print "Iteration Done"
