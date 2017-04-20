@@ -11,12 +11,17 @@ from keras.utils import np_utils
 from sklearn import preprocessing
 import sys
 
-def get_stance_matrix(answers, encoder):
+labels = {'agree':0, 'disagree':1, 'discuss':2}
 
-	y = encoder.transform(answers) #string to numerical class
-	nb_classes = encoder.classes_.shape[0]
-	Y = np_utils.to_categorical(y, nb_classes)
-	return Y
+def get_stance_matrix(answers, encoder):
+	y = []
+	for i in answers:
+		y.append(labels[i])
+	return np.array(y)
+	# y = encoder.transform(answers) #string to numerical class
+	# nb_classes = encoder.classes_.shape[0]
+	# Y = np_utils.to_categorical(y, nb_classes)
+	# return Y
 
 def get_timeseries_nlp(text, nlp, timesteps):
 	nb_samples = len(text)
@@ -99,9 +104,7 @@ for d in body_data:
 training_dict_data = np.array(training_dict_data)
 holdout_dict_data = np.array(holdout_dict_data)
 
-labelencoder = preprocessing.LabelEncoder()
-labelencoder.fit(training_dict_data[:,2])
-nb_classes = len(list(labelencoder.classes_))
+training_dict_data[:,2] = np.array([labels[label] for label in training_dict_data[:,2]])
 
 batch_size = 100
 
@@ -127,7 +130,7 @@ for i in range(0, len(indices)-1):
 	bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
 	x = np.hstack((headlines_batch, bodies_batch))
-	y = get_stance_matrix(stances, labelencoder)
+	y = get_stance_matrix(stance)
 
 	loss = language_model.train_on_batch(x,y)
 	print "Iteration Done"
