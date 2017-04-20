@@ -112,8 +112,6 @@ batch_ids = np.arange(0,len(training_dict_data),batch_size)
 print len(training_dict_data)
 print batch_ids
 
-sys.exit()
-
 indices = np.linspace(0,len(training_dict_data)-1,dtype='int')
 
 for i in range(0, len(indices)-1):
