@@ -15,9 +15,10 @@ import sys
 
 labels = {'agree':0, 'disagree':1, 'discuss':2}
 
-def get_stance_matrix(answers, encoder):
+def get_stance_matrix(answers):
 	y = []
 	for i in answers:
+		print i
 		y.append(labels[i])
 	return np.array(y)
 	# y = encoder.transform(answers) #string to numerical class
@@ -30,8 +31,8 @@ def get_timeseries_nlp(text, nlp, timesteps):
 	word_vec_dim = 300
 	tensor = np.zeros((nb_samples, timesteps, word_vec_dim))
 	for i in xrange(len(text)):
-		print text[i]
-		print type(text[i])
+		#print text[i]
+		#print type(text[i])
 		text[i] = unicodedata.normalize('NFKD', text[i]).encode('ascii', 'ignore')
 		tokens = nlp(unicode(text[i]))
 		for j in xrange(len(tokens)):
@@ -133,11 +134,10 @@ for i in range(0, len(indices)-1):
 	bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
 	x = np.hstack((headlines_batch, bodies_batch))
-	y = get_stance_matrix(stance)
+	y = [int(i) for i in stances]
 
 	loss = language_model.train_on_batch(x,y)
 	print "Iteration Done"
-	break
 
 # print len(training_ids)
 # for i in xrange(16):
