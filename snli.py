@@ -1,5 +1,6 @@
 #-*-coding: utf-8 -*-
 import unicodedata
+from keras.models import load_model
 import keras
 from keras.models import Sequential
 from keras.layers.recurrent import LSTM
@@ -145,7 +146,8 @@ for i in range(0, len(indices)-1):
 			y.append([0,0,1])
 	loss = language_model.train_on_batch(x,y)
 	print "Iteration Done"
-	break
+
+language_model.save('language.h5')
 
 # print len(training_ids)
 # for i in xrange(16):
