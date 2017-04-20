@@ -33,21 +33,21 @@ def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return izip_longest(*args, fillvalue=fillvalue)
 
-language_model = Sequential()
+# language_model = Sequential()
 
-hypo_dim = 300
-prem_dim = 300
-max_len = 405
-word_vec_dim = 300
-nlp = English()
+# hypo_dim = 300
+# prem_dim = 300
+# max_len = 405
+# word_vec_dim = 300
+# nlp = English()
 
-language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
-language_model.add(LSTM(200,return_sequences=True))
-language_model.add(LSTM(200, return_sequences=False))
-language_model.add(Dense(3, activation='softmax'))
+# language_model.add(LSTM(200,input_shape=(max_len, word_vec_dim), return_sequences=True))
+# language_model.add(LSTM(200,return_sequences=True))
+# language_model.add(LSTM(200, return_sequences=False))
+# language_model.add(Dense(3, activation='softmax'))
 
-language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
-language_model.summary()
+# language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
+# language_model.summary()
 
 headline_data = {}
 body_data = {}
@@ -70,51 +70,58 @@ with open('./data/train_stances.csv') as f:
 		headline = row[0]
 		body_id = int(row[1])
 		stance = row[2]
-		headline_data[body_id] = headline
-		stance_data[body_id] = stance
+		headline_data.setdefault(body_id,[])
+		stance_data.setdefault(body_id,[])
+		headline_data[body_id].append(headline)
+		stance_data[body_id].append(stance)
 
-dict_data = defaultdict(list)
-
-for d in (headline_data, body_data, stance_data):
-	for k, v in d.iteritems():
-		dict_data[k].append(v)
-
-new_dict_data = {k: v for k,v  in dict_data.iteritems() if v[2]!='unrelated'}
 
 with open('./data/hold_out_ids.txt') as f:
 	for line in f:
-		if int(line) in new_dict_data:
-			hold_out_ids.append(int(line))
+		hold_out_ids.append(int(line))
 
 with open('./data/training_ids.txt') as f:
 	for line in f:
-		if int(line) in new_dict_data:
-			training_ids.append(int(line))
+		training_ids.append(int(line))
 
-training_dict = {i:new_dict_data[i] for i in training_ids}
-hold_out_dict = {i:new_dict_data[i] for i in hold_out_ids}
+training_dict_data = []
 
-headline, body, stance = [item[0] for item in training_dict.values()], [item[1] for item in training_dict.values()], [item[2] for item in training_dict.values()]
+holdout_dict_data = []
 
-headline = [i.decode('utf8') for i in headline]
-body = [i.decode('utf8') for i in body]
+for d in body_data:
+	for j in range(len(headline_data[d])):
+		if (stance_data[d][j]!='unrelated') and d in training_ids:
+			training_dict_data.append([body_data[d].decode('utf8'),headline_data[d][j].decode('utf8'),stance_data[d][j]])
+		elif (stance_data[d][j]!='unrelated') and d in hold_out_ids:
+			holdout_dict_data.append([body_data[d].decode('utf8'),headline_data[d][j].decode('utf8'),stance_data[d][j]])
+
+
+training_dict_data = np.array(training_dict_data)
+holdout_dict_data = np.array(holdout_dict_data)
 
 labelencoder = preprocessing.LabelEncoder()
-labelencoder.fit(stance)
+labelencoder.fit(training_dict_data[:,2])
 nb_classes = len(list(labelencoder.classes_))
-print labelencoder
 
-print len(training_ids)
-for i in xrange(16):
-	for headlines, bodies, stances in zip(grouper(headline, 99), grouper(body, 99), grouper(stance, 99)):
-		timesteps_headline = 12 #len(nlp(headlines[-1]))
-		timesteps_body = 393 #len(nlp(bodies[-1]))
-		headlines_batch = get_timeseries_nlp(headlines, nlp, timesteps_headline)
-		bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
-		print headlines_batch.shape, bodies_batch.shape
-		x = np.hstack((headlines_batch, bodies_batch))
-		# x = x.reshape(1,x.shape[0],x.shape[1])
-		y = get_stance_matrix(stances, labelencoder)
-		print y.shape
-		loss = language_model.train_on_batch(x , y)
-		print "Iteration done"
+batch_size = 100
+
+batch_ids = np.arange(0,len(training_dict_data),batch_size)
+print len(training_dict_data)
+print batch_ids
+
+sys.exit()
+
+# print len(training_ids)
+# for i in xrange(16):
+# 	for headlines, bodies, stances in training_dict:
+# 		timesteps_headline = 12 #len(nlp(headlines[-1]))
+# 		timesteps_body = 393 #len(nlp(bodies[-1]))
+# 		headlines_batch = get_timeseries_nlp(headlines, nlp, timesteps_headline)
+# 		bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
+# 		print headlines_batch.shape, bodies_batch.shape
+# 		x = np.hstack((headlines_batch, bodies_batch))
+# 		# x = x.reshape(1,x.shape[0],x.shape[1])
+# 		y = get_stance_matrix(stances, labelencoder)
+# 		print y.shape
+# 		loss = language_model.train_on_batch(x , y)
+# 		print "Iteration done"
