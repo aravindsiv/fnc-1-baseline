@@ -1,4 +1,5 @@
-from __future__ import unicode_literals
+#-*-coding: utf-8 -*-
+import unicodedata
 import keras
 from keras.models import Sequential
 from keras.layers.recurrent import LSTM
@@ -29,7 +30,10 @@ def get_timeseries_nlp(text, nlp, timesteps):
 	word_vec_dim = 300
 	tensor = np.zeros((nb_samples, timesteps, word_vec_dim))
 	for i in xrange(len(text)):
-		tokens = nlp(str(text[i]).encode('utf-8').decode('utf-8'))
+		print text[i]
+		print type(text[i])
+		text[i] = unicodedata.normalize('NFKD', text[i]).encode('ascii', 'ignore')
+		tokens = nlp(unicode(text[i]))
 		for j in xrange(len(tokens)):
 			if j < timesteps:
 				tensor[i,j,:] += tokens[j].vector
