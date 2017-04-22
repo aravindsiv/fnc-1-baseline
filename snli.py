@@ -172,7 +172,7 @@ if args.mode == 'validate':
 		classes = np.argmax(prediction,axis=1)
 
 		diff = classes - y
-		no_of_zeros = diff.count(0)
+		no_of_zeros = len(diff) - np.count_nonzero(diff)
 		correct += no_of_zeros
 		total += len(y)
 	print "Accuracy is: ",float(correct)/float(total)
