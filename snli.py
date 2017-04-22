@@ -123,7 +123,7 @@ if args.mode == 'train':
 
 	indices = np.linspace(0,len(training_dict_data)-1,dtype='int')
 
-	for i in xrange(args.epoch):
+	for i in xrange(args.epochs):
 		for i in range(0, len(indices)-1):
 			start = indices[i]
 			end = indices[i+1]
