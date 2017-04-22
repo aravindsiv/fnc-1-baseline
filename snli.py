@@ -149,7 +149,8 @@ if args.mode == 'train':
 if args.mode == 'validate':
 	language_model.load_weights('language.h5')
 	indices = np.linspace(0, len(holdout_dict_data)-1, dtype='int')
-
+	total = 0
+	correct = 0
 	for i in range(0, len(indices)-1):
 		start = indices[i]
 		end = indices[i+1]
@@ -170,4 +171,8 @@ if args.mode == 'validate':
 		prediction = language_model.predict(x)
 		classes = np.argmax(prediction,axis=1)
 
-		
+		diff = classes - y
+		no_of_zeros = diff.count(0)
+		correct += no_of_zeros
+		total += len(y)
+	print "Accuracy is: ",float(correct)/float(total)
