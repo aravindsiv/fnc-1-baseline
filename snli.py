@@ -142,7 +142,8 @@ if args.mode == 'train':
 			
 			loss = language_model.train_on_batch(x,y)
 			print "Iteration Done"
-		print "Epoch Done"
+		print "Epoch Done:",i
+		language_model.save('language_epoch_{}.h5'.format(str(i)))
 
 	language_model.save('language.h5')
 
