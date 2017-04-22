@@ -164,16 +164,10 @@ if args.mode == 'validate':
 		bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
 		x = np.hstack((headlines_batch, bodies_batch))
-
-		y = []
-		for i in stances:
-			if int(i) == 0:
-				y.append([1,0,0])
-			elif int(i) == 1:
-				y.append([0,1,0])
-			elif int(i) == 2:
-				y.append([0,0,1])
+		y = [int(i) for i in stances]
+		y = np.array(y)
 
 		prediction = language_model.predict(x)
-		print prediction
-		break
+		classes = np.argmax(prediction,axis=1)
+
+		
