@@ -18,6 +18,7 @@ import argparse
 labels = {'agree':0, 'disagree':1, 'discuss':2}
 parser = argparse.ArgumentParser()
 parser.add_argument('-mode',type=str)
+parser.add_argument('-epochs', type=int, default=16)
 args = parser.parse_args()
 
 def get_stance_matrix(answers):
@@ -122,24 +123,26 @@ if args.mode == 'train':
 
 	indices = np.linspace(0,len(training_dict_data)-1,dtype='int')
 
-	for i in range(0, len(indices)-1):
-		start = indices[i]
-		end = indices[i+1]
-		timesteps_headline = 12
-		timesteps_body = 393
-		batch = training_dict_data[start:end]
-		bodies = batch[:,0]
-		headlines = batch[:,1]
-		stances = batch[:,2]
+	for i in xrange(args.epoch):
+		for i in range(0, len(indices)-1):
+			start = indices[i]
+			end = indices[i+1]
+			timesteps_headline = 12
+			timesteps_body = 393
+			batch = training_dict_data[start:end]
+			bodies = batch[:,0]
+			headlines = batch[:,1]
+			stances = batch[:,2]
 
-		headlines_batch = get_timeseries_nlp(headlines, nlp, timesteps_headline)
-		bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
+			headlines_batch = get_timeseries_nlp(headlines, nlp, timesteps_headline)
+			bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
-		x = np.hstack((headlines_batch, bodies_batch))
-		y = [int(i) for i in stances]
-		
-		loss = language_model.train_on_batch(x,y)
-		print "Iteration Done"
+			x = np.hstack((headlines_batch, bodies_batch))
+			y = [int(i) for i in stances]
+			
+			loss = language_model.train_on_batch(x,y)
+			print "Iteration Done"
+		print "Epoch Done"
 
 	language_model.save('language.h5')
 
