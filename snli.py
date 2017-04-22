@@ -62,7 +62,7 @@ language_model.add(LSTM(200,return_sequences=True))
 language_model.add(LSTM(200, return_sequences=False))
 language_model.add(Dense(3, activation='softmax'))
 
-language_model.compile(loss='categorical_crossentropy',optimizer='rmsprop')
+language_model.compile(loss='sparse_categorical_crossentropy',optimizer='rmsprop')
 language_model.summary()
 
 
@@ -136,22 +136,15 @@ if args.mode == 'train':
 		bodies_batch = get_timeseries_nlp(bodies, nlp, timesteps_body)
 
 		x = np.hstack((headlines_batch, bodies_batch))
-		# y = [int(i) for i in stances]
-		y = []
-		for i in stances:
-			if int(i) == 0:
-				y.append([1,0,0])
-			elif int(i) == 1:
-				y.append([0,1,0])
-			elif int(i) == 2:
-				y.append([0,0,1])
+		y = [int(i) for i in stances]
+		
 		loss = language_model.train_on_batch(x,y)
 		print "Iteration Done"
 
 	language_model.save('language.h5')
 
 if args.mode == 'validate':
-	language_model = load_model('language.h5')
+	language_model.load_weights('language.h5')
 	indices = np.linspace(0, len(holdout_dict_data)-1, dtype='int')
 
 	for i in range(0, len(indices)-1):
