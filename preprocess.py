@@ -1,150 +1,167 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 29 18:10:06 2017
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from keras.utils import to_categorical
+from collections import defaultdict
 
-@author: ubuntu
-"""
+import csv
+import numpy as np
+import unicodedata
 
-import sys
-sys.path.append("/home/ubuntu/ml_project/fnc-1-baseline/utils")
-
-import spacy
-import pickle
-from generate_test_splits import *
-import json
-nlp = spacy.load('en')
-from nltk.tag import StanfordNERTagger
-st = StanfordNERTagger('/home/ubuntu/Downloads/stanford-ner-2016-10-31/classifiers/english.all.3class.distsim.crf.ser.gz','/home/ubuntu/Downloads/stanford-ner-2016-10-31/stanford-ner.jar')
-
-
-print ("he;knvlk klenvken")
-from dataset import DataSet
-
-dataset = DataSet()
-
-folds,hold_out_ids=kfold_split(dataset)
-
-def preprocess_func(dataset):
-    articles=dataset.articles
-    output={}
-    data_proc=[]
-    mapping_id={}
-    vocab_tokens={}
-    for i,k in enumerate(dataset.stances):
-
-        print(i)
-        buff={}
-        buff["id"]=k['Body ID']
-
-        output[i]=k["Stance"]
-        buff["body"]=articles[buff["id"]]
-        buff["hd"]=k["Headline"]
-        if(buff["id"] in mapping_id):
-            buff["body_pos"]=data_proc[mapping_id[buff["id"]]]["body_pos"]
-            buff["body_tok"]=data_proc[mapping_id[buff["id"]]]["body_tok"]
-            #buff["body_entities"]=data_proc[mapping_id[buff["id"]]]["body_entities"]
-        else:
-            mapping_id[buff["id"]]=i
-            buff["body_pos"] =[]
-            buff["body_tok"]=[]
-            doc_body = nlp(buff["body"])
-            """
-            entity_list=[]
-            buff_list=[]
-            sent_list=[]
-            for span in doc_body.sents:
-                sent = ''.join(doc_body[i].string for i in range(span.start, span.end)).strip()
-                sent_list.append(sent.split())
-            buff_list=st.tag_sents(sent_list)
-            for m in buff_list:
-                entity_list.extend(m)
-            entity_dict={entity:set() for entity in ["PERSON", "ORGANIZATION", "LOCATION"]}
-            for pair in entity_list:
-                if(pair[1] in ["PERSON", "ORGANIZATION", "LOCATION"]):
-                     entity_dict[pair[1]].add(pair[0])
-            buff["body_entities"]=entity_dict 
-            """             
-            for word in doc_body:
-                buff["body_pos"].append(word.pos_)
-                buff["body_tok"].append(word.text)
-            
-            
+def _normalize(text):
+    return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
     
-        doc_hd=nlp(buff["hd"])
 
-        buff["hd_pos"]=[]
-        buff["hd_tok"]=[]
-        for word in doc_hd:
-            buff["hd_pos"].append(word.pos_)
-            buff["hd_tok"].append(word.text)
-        """    
-        entity_dict={entity:set() for entity in ["PERSON", "ORGANIZATION", "LOCATION"]}
-        #entity_list=st.tag(buff["hd_tok"])
-        entity_list=[]
-        buff_list=[]
-        sent_list=[]
-        for span in doc_hd.sents:
-                sent = ''.join(doc_hd[i].string for i in range(span.start, span.end)).strip()
-                #entity_list.extend(st.tag(sent.split()))
-                sent_list.append(sent.split())
-        buff_list=st.tag_sents(sent_list)
-        for m in buff_list:
-            entity_list.extend(m)        
-        for pair in entity_list:
-            if(pair[1] in ["PERSON", "ORGANIZATION", "LOCATION"]):
-                entity_dict[pair[1]].add(pair[0])
-        buff["hd_entities"]=entity_dict
-        """
-        vocab_tokens[i]=[tok.lower().strip() for tok in set(buff["hd_tok"]).union(set(buff["body_tok"]))]    
-        data_proc.append(buff)    
-    return output,data_proc,vocab_tokens
+class PreProcessor:
+    def __init__(self,splits_folder="splits/",data_folder="fnc-1/"):
+        bodies = {}
+        headlines = defaultdict(list)
+        stances = defaultdict(list)
+        
+        train_ids = []
+        holdout_ids = []
 
+        with open(data_folder+"train_bodies.csv") as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                bodies[int(row[0])] = row[1]
+                
+        with open(data_folder+"train_stances.csv") as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                headlines[int(row[1])].append(row[0])
+                stances[int(row[1])].append(row[2])
+                
+        with open(splits_folder+"training_ids.txt") as f:
+            for l in f:
+                train_ids.append(int(l))
+        
+        with open(splits_folder+"hold_out_ids.txt") as f:
+            for l in f:
+                holdout_ids.append(int(l))
+                
+        self.train_data = []
+        self.test_data = []
+        
+        for i in bodies:
+            for j in range(len(headlines[i])):
+                if stances[i][j] != "unrelated":
+                    if i in train_ids:
+                        self.train_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                    else:
+                        self.test_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                        
+        self.train_data = np.array(self.train_data)
+        self.test_data = np.array(self.test_data)
+        
+        print "Number of training examples: %s" %(len(self.train_data))
+        print "Number of test examples: %s" %(len(self.test_data))
 
+    def preprocess_keras(self):
+        self.tokenizer = Tokenizer()
+        self.tokenizer.fit_on_texts(np.vstack([self.train_data[:,0:2],self.test_data[:,0:2]]).flatten())
+                
+        self.bodies_sequence = self.tokenizer.texts_to_sequences(self.train_data[:,0])
+        self.headlines_sequence = self.tokenizer.texts_to_sequences(self.train_data[:,1])
 
-output,data_proc,vocab_tokens=preprocess_func(dataset)
-training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
-test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
+        self.bodies_sequence_test = self.tokenizer.texts_to_sequences(self.test_data[:,0])
+        self.headlines_sequence_test = self.tokenizer.texts_to_sequences(self.test_data[:,1])
+        
+        self.word_index = self.tokenizer.word_index
 
-train_data=[]
-training_label=[]
-test_data=[]
-test_label=[]
+        self.max_seq_length = max(max([len(self.bodies_sequence[i]) for i in range(len(self.bodies_sequence))]),\
+                                max([len(self.bodies_sequence_test[i]) for i in range(len(self.bodies_sequence_test))]))
 
-for i,k in enumerate(data_proc):
-        if(k["id"] in training_ids):
-            train_data.append(k)
-            training_label.append(output[i])
-            continue
-        elif(k["id"] in test_ids):
-            test_data.append(k)
-            test_label.append(output[i])
-            continue        
-                                     
-#pickle.dump(output,open("labels100.pk","wb"))
-#pickle.dump(data_proc,open("dataset_pickle100.pk","wb"))
-pickle.dump(training_label,open("training_label.pk","wb"))
-pickle.dump(train_data,open("train_data.pk","wb"))
-pickle.dump(test_label,open("test_label.pk","wb"))
-pickle.dump(test_data,open("test_data.pk","wb"))
-#with open('data.json100', 'w') as fp:
-#    json.dump(vocab_tokens, fp)                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
-                                     
- 
+        stances = set(self.train_data[:,2])
+        
+        self.label_index = {} # labels_index["agree"]
+        
+        for i,j in enumerate(stances):
+            self.label_index[j] = i
 
+        print "Found %s unique tokens" %(len(self.tokenizer.word_index))
 
+    def make_data_fold(self,k,splits_folder="splits/"):
+        '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
+        particular model.'''
+        train_data_k = []
+        test_data_k = []
 
+        test_ids = []
+        with open(splits_folder+"training_ids_"+str(k)+".txt") as f:
+            for l in f:
+                test_ids.append(int(l))
 
+        for i in range(self.train_data.shape[0]):
+            if int(self.train_data[i,3]) in test_ids:
+                test_data_k.append(self.train_data[i,0:3])
+            else:
+                train_data_k.append(self.train_data[i,0:3])
 
+        train_data_k = np.array(train_data_k)
+        test_data_k = np.array(test_data_k)
 
+        print "Number of training examples for fold %s: %s" %(k,len(train_data_k))
+        print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
 
+        return train_data_k, test_data_k
+        
+    
+    def make_data_keras(self):
+        
+        bodies_data = pad_sequences(self.bodies_sequence,maxlen=self.max_seq_length)
+        headlines_data = pad_sequences(self.headlines_sequence,maxlen=self.max_seq_length)
 
+        bodies_data_test = pad_sequences(self.bodies_sequence_test,maxlen=self.max_seq_length)
+        headlines_data_test = pad_sequences(self.headlines_sequence_test,maxlen=self.max_seq_length)
+        
+        
+        
+        labels = np.zeros((len(self.train_data),1))
+        labels_test = np.zeros((len(self.holdout_data),1))
+        
+        for i in range(len(self.train_data)):
+            labels[i] = label_index[self.train_data[i,2]]
+
+        for i in range(len(self.holdout_data)):
+            labels_test[i] = labels_index[self.holdout_data[i,2]]
+
+        labels = to_categorical(labels)
+        labels_test = to_categorical(labels_test)
+        
+        print "Shape ofs bodies data tensor: " +str(bodies_data.shape)
+        print "Shape of headlines data tensor: " +str(headlines_data.shape)
+        print "Shape of labels tensor: " + str(labels.shape)
+        
+        return {"train":[bodies_data, headlines_data, labels],"test":[bodies_data_test, headlines_data_test, labels_test]}
+
+    def get_embedding_matrix(self,we_file):
+        embeddings_index = {}
+        
+        f = open(we_file)
+        
+        for line in f:
+            values = line.split()
+            word = values[0]
+            coefs = np.asarray(values[1:],dtype='float32')
+            embeddings_index[word] = coefs
+        f.close()
+        
+        print "Found %s word vectors." % len(embeddings_index)
+            
+        self.embedding_matrix = np.zeros((len(self.word_index)+1, 300)) # Change this
+
+        
+        for word, i in self.word_index.items():
+            embedding_vector = embeddings_index.get(word)
+            if embedding_vector is not None:
+                # words not found in embedding index will be all-zeros.
+                self.embedding_matrix[i] = embedding_vector
+
+        return self.embedding_matrix
+
+if __name__ == "__main__":
+    pp = PreProcessor()
+    pp.preprocess_keras()
+    _ = pp.make_data_fold(0)
