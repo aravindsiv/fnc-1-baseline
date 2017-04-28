@@ -7,6 +7,12 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
+
 func_list=[rules_lib.__dict__.get(a).__name__ for a in dir(rules_lib) if isinstance(rules_lib.__dict__.get(a), types.FunctionType)]
 def feature_extractor(data_point,max_length):
     obs = []
@@ -45,6 +51,7 @@ def train_classifier(dataset,labels,training_ids):
     max_length=max_len(train_data, "hd_tok")
     for i,k in enumerate(train_data):
         obs=feature_extractor(k,max_length)
+        print (i)
         training_data.append(obs)
         #current_label=labels[i]
         current_label = training_index[i]
