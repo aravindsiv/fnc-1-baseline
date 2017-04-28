@@ -3,7 +3,7 @@ import os
 from collections import defaultdict
 
 
-def generate_hold_out_split (dataset, training = 0.8, base_dir="splits"):
+def generate_hold_out_split(dataset, training = 0.8, base_dir="splits"):
     r = random.Random()
     r.seed(1489215)
 
@@ -20,7 +20,6 @@ def generate_hold_out_split (dataset, training = 0.8, base_dir="splits"):
 
     with open(base_dir+ "/"+ "hold_out_ids.txt", "w+") as f:
         f.write("\n".join([str(id) for id in hold_out_ids]))
-
 
 
 def read_ids(file,base):
@@ -42,6 +41,11 @@ def kfold_split(dataset, training = 0.8, n_folds = 10, base_dir="splits"):
     folds = []
     for k in range(n_folds):
         folds.append(training_ids[int(k*len(training_ids)/n_folds):int((k+1)*len(training_ids)/n_folds)])
+
+    for fold_index in range(len(folds)):
+        file_name = "training_ids_" + str(fold_index) + ".txt"
+        with open(base_dir + "/" + file_name, "w+") as f:
+            f.write("\n".join([str(id) for id in folds[fold_index]]))
 
     return folds,hold_out_ids
 
