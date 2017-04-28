@@ -5,3 +5,6 @@ features/*.npy
 .DS_Store
 .idea
 __pycache__
+mlproj
+.ipynb_checkpoints
+*.ipynb
