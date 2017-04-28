@@ -9,7 +9,6 @@ import unicodedata
 
 def _normalize(text):
     return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
-    
 
 class PreProcessor:
     def __init__(self,splits_folder="splits/",data_folder="fnc-1/"):
@@ -61,17 +60,6 @@ class PreProcessor:
     def preprocess_keras(self):
         self.tokenizer = Tokenizer()
         self.tokenizer.fit_on_texts(np.vstack([self.train_data[:,0:2],self.test_data[:,0:2]]).flatten())
-                
-        self.bodies_sequence = self.tokenizer.texts_to_sequences(self.train_data[:,0])
-        self.headlines_sequence = self.tokenizer.texts_to_sequences(self.train_data[:,1])
-
-        self.bodies_sequence_test = self.tokenizer.texts_to_sequences(self.test_data[:,0])
-        self.headlines_sequence_test = self.tokenizer.texts_to_sequences(self.test_data[:,1])
-        
-        self.word_index = self.tokenizer.word_index
-
-        self.max_seq_length = max(max([len(self.bodies_sequence[i]) for i in range(len(self.bodies_sequence))]),\
-                                max([len(self.bodies_sequence_test[i]) for i in range(len(self.bodies_sequence_test))]))
 
         stances = set(self.train_data[:,2])
         
@@ -106,26 +94,33 @@ class PreProcessor:
         print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
 
         return train_data_k, test_data_k
-        
     
-    def make_data_keras(self):
-        
-        bodies_data = pad_sequences(self.bodies_sequence,maxlen=self.max_seq_length)
-        headlines_data = pad_sequences(self.headlines_sequence,maxlen=self.max_seq_length)
+    def make_data_keras(self,fold):
+        train_data_k, test_data_k = self.make_data_fold(fold)
+                
+        bodies_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,0])
+        headlines_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,1])
 
-        bodies_data_test = pad_sequences(self.bodies_sequence_test,maxlen=self.max_seq_length)
-        headlines_data_test = pad_sequences(self.headlines_sequence_test,maxlen=self.max_seq_length)
+        bodies_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,0])
+        headlines_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,1])
         
-        
-        
-        labels = np.zeros((len(self.train_data),1))
-        labels_test = np.zeros((len(self.holdout_data),1))
-        
-        for i in range(len(self.train_data)):
-            labels[i] = label_index[self.train_data[i,2]]
+        max_seq_length = max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
+                                max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
 
-        for i in range(len(self.holdout_data)):
-            labels_test[i] = labels_index[self.holdout_data[i,2]]
+        bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
+        headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
+
+        bodies_data_test = pad_sequences(bodies_sequence_test,maxlen=max_seq_length)
+        headlines_data_test = pad_sequences(headlines_sequence_test,maxlen=max_seq_length)
+        
+        labels = np.zeros((len(train_data_k),1))
+        labels_test = np.zeros((len(test_data_k),1))
+        
+        for i in range(len(train_data_k)):
+            labels[i] = self.label_index[train_data_k[i,2]]
+
+        for i in range(len(test_data_k)):
+            labels_test[i] = self.label_index[test_data_k[i,2]]
 
         labels = to_categorical(labels)
         labels_test = to_categorical(labels_test)
@@ -134,9 +129,9 @@ class PreProcessor:
         print "Shape of headlines data tensor: " +str(headlines_data.shape)
         print "Shape of labels tensor: " + str(labels.shape)
         
-        return {"train":[bodies_data, headlines_data, labels],"test":[bodies_data_test, headlines_data_test, labels_test]}
+        return {"train":[bodies_data, headlines_data, labels],"test":[bodies_data_test, headlines_data_test, labels_test],"max_seq_length":max_seq_length}
 
-    def get_embedding_matrix(self,we_file):
+    def get_embedding_matrix(self,we_file="fnc-1/glove.6B.300d.txt"):
         embeddings_index = {}
         
         f = open(we_file)
@@ -150,10 +145,10 @@ class PreProcessor:
         
         print "Found %s word vectors." % len(embeddings_index)
             
-        self.embedding_matrix = np.zeros((len(self.word_index)+1, 300)) # Change this
+        self.embedding_matrix = np.zeros((len(self.tokenizer.word_index)+1, 300)) # Change this
 
         
-        for word, i in self.word_index.items():
+        for word, i in self.tokenizer.word_index.items():
             embedding_vector = embeddings_index.get(word)
             if embedding_vector is not None:
                 # words not found in embedding index will be all-zeros.
@@ -164,4 +159,4 @@ class PreProcessor:
 if __name__ == "__main__":
     pp = PreProcessor()
     pp.preprocess_keras()
-    _ = pp.make_data_fold(0)
+    _ = pp.make_data_keras(0)
