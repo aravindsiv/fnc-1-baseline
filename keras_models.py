@@ -3,7 +3,7 @@ from preprocess import PreProcessor
 import keras
 import keras.backend as K
 import argparse
-
+import tempfile
 from keras.models import Sequential
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization
 from keras.models import Model
@@ -14,8 +14,8 @@ sentence_hidden_layer_size = 300
 activation = 'relu'
 RNN = None
 dropout_rate = 0.2
-batch_size = 
-num_epochs = 64
+batch_size = 512
+num_epochs = 10
 patience = 5
 
 if __name__ == "__main__":
@@ -34,14 +34,14 @@ if __name__ == "__main__":
 	bodies_t, headlines_t, labels_t = data_dict["test"]
 	max_seq_length = data_dict["max_seq_length"]
 
-	embed = Embedding(len(pp.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=max_seq_length)
+	embed = Embedding(len(pp.tokenizer.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=max_seq_length)
 
 	SumEmbeddings = keras.layers.core.Lambda(lambda x: K.sum(x,axis=1),output_shape=(sentence_hidden_layer_size,))
 
 	translate = TimeDistributed(Dense(sentence_hidden_layer_size,activation=activation))
 
-	body = Input(shape=(pp.max_seq_length,))
-	headline = Input(shape=(pp.max_seq_length,))
+	body = Input(shape=(max_seq_length,))
+	headline = Input(shape=(max_seq_length,))
 
 	bod = embed(body)
 	head = embed(headline)
