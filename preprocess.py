@@ -1,7 +1,9 @@
+import cPickle as pickle
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from collections import defaultdict
+from preprocess_ import preprocess_func
 
 import csv
 import numpy as np
@@ -69,6 +71,16 @@ class PreProcessor:
             self.label_index[j] = i
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
+        
+    def preprocess_stageone(self):
+        train_labels,train_data=preprocess_func(self.train_data)
+        test_labels,test_data=preprocess_func(self.test_data)
+        pickle.dump(train_labels,open("training_label.pk","wb"))
+        pickle.dump(train_data,open("train_data.pk","wb"))
+        pickle.dump(test_labels,open("test_label.pk","wb"))
+        pickle.dump(test_data,open("test_data.pk","wb"))
+
+        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))        
 
     def make_data_fold(self,k,splits_folder="splits/"):
         '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
@@ -159,4 +171,8 @@ class PreProcessor:
 if __name__ == "__main__":
     pp = PreProcessor()
     pp.preprocess_keras()
+    pp.preprocess_stageone()
+
+    
     _ = pp.make_data_keras(0)
+    
