@@ -53,8 +53,8 @@ def preprocess_func(dataset):
             for span in doc_body.sents:
                 if(sent_num==1):
                     break
-                sent = ''.join(doc_body[i].string for i in range(span.start, span.end)).strip()
-                sent_list.append(sent.split())
+                #sent = ''.join(doc_body[i].string for i in range(span.start, span.end)).strip()
+                #sent_list.append(sent.split())
                 for m_tok in span:
                     count_tok+=1
                     if(COUNT_TOKENS>=0):
