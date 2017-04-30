@@ -10,7 +10,7 @@ import os
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0) 
 
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
 from keras.models import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -25,6 +25,16 @@ num_epochs = 10
 patience = 5
 L2 = 4e-6
 
+def test_model(model_file,data_dict):
+	model = load_model(model_file)
+	bodies = data_dict["bodies"]
+	headlines = data_dict["headlines"]
+	gold_labels = data_dict["labels"]
+
+	loss, acc = model.evaluate([bodies_t, headlines_t],labels_t)
+	print "Test loss: %s, accuracy: %s" %(loss, acc)
+
+
 if __name__ == "__main__":
 	pp = PreProcessor()
 	pp.preprocess_keras()
@@ -33,7 +43,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-fold',help='fold to train the model on',default='0')
-	parser.add_argument('-rnn',help='no | lstm | gru',default='no')
+	parser.add_argument('-rnn',help='no | lstm | lstm_1 | gru',default='no')
 
 	args = vars(parser.parse_args())
 
@@ -51,6 +61,8 @@ if __name__ == "__main__":
 	elif args ['rnn'] == 'gru':
 		RNN = recurrent.GRU
 		fprefix = "gru"
+	elif args['rnn'] == 'lstm_1':
+		RNN = recurrent.LSTM
 	else:
 		print "Invalid arg for rnn"
 		RNN = None
@@ -69,6 +81,11 @@ if __name__ == "__main__":
 
 	bod = translate(bod)
 	head = translate(head)
+
+	if args['rnn'] == 'lstm_1':
+		rnn = RNN(return_sequences=True,output_dim=sentence_hidden_layer_size)
+		bod = BatchNormalization()(rnn(bod))
+		prem = BatchNormalization()(rnn(head))
 
 	rnn = SumEmbeddings if not RNN else RNN(return_sequences=False,output_dim=sentence_hidden_layer_size)
 	bod = rnn(bod)
@@ -105,7 +122,7 @@ if __name__ == "__main__":
 	for j in range(num_epochs):
 		for i in range(len(z)):
 			loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
-			print "Epoch ", j, " Batch ", i, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
+			print "Epoch ", j+1, " Batch ", i+1, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
 
 	# model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
 
