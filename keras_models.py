@@ -5,6 +5,10 @@ import keras.backend as K
 import argparse
 import tempfile
 import numpy as np
+import sys
+import os
+
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0) 
 
 from keras.models import Sequential
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
