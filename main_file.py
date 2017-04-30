@@ -34,27 +34,28 @@ def max_len2(train_data,key):
         max_length.append(len(m[key]))
 
     return sum(max_length)/len(max_length)
-def train_classifier(dataset,labels,training_ids):
+
+def train_classifier(train_data,train_labels):
     print (func_list)
     classifier = LogisticRegression(penalty='l1')
     training_data=[]
     training_labels=[]
-    train_data=[]
-    training_index=[]
+    #train_data=[]
+    #training_labels=[k for k in train_labels]
     max_hd=0
-    for i,k in enumerate(dataset):
-        #print(i)
-        if(k["id"] not in training_ids):
-            continue
-        train_data.append(k)
-        training_index.append(labels[i])
+    #for i,k in enumerate(dataset):
+    #    #print(i)
+    #    if(k["id"] not in training_ids):
+    #        continue
+    #    train_data.append(k)
+    #    training_index.append(labels[i])
     max_length=max_len(train_data, "hd_tok")
     for i,k in enumerate(train_data):
         obs=feature_extractor(k,max_length)
         print (i)
         training_data.append(obs)
         #current_label=labels[i]
-        current_label = training_index[i]
+        current_label = train_labels[i]
         if(current_label in ["agree","discuss","disagree"]):
             current_label="related"
         training_labels.append(current_label)
@@ -65,38 +66,44 @@ def train_classifier(dataset,labels,training_ids):
     classifier.fit(training_vector,training_labels)
     return classifier,max_length
 
-def test_classifier(dataset,classifier,labels,test_ids,max_length):
+def test_classifier(test_data,classifier,labels,max_length):
 
-    test_data=[]
+    testing_data=[]
     test_labels=[]
     test_body=[]
     test_hd=[]
 
-    for i,k in enumerate(dataset):
-        if(k["id"] not in test_ids):
-            continue
+    for i,k in enumerate(test_data):
+        #if(k["id"] not in test_ids):
+        #    continue
         test_body.append(" ".join([text for text in k["body_tok"] if(len(text.strip())>0)]))
         test_hd.append(k["hd"])
         obs=feature_extractor(k,max_length)
-        test_data.append(obs)
+        testing_data.append(obs)
         current_label=labels[i]
         if(current_label in ["agree","discuss","disagree"]):
             current_label="related"
         test_labels.append(current_label)
-    test_vector=np.array(test_data)
+    test_vector=np.array(testing_data)
     pred_labels=classifier.predict(test_vector)
-    return test_labels,pred_labels,test_data,test_hd,test_body
+    return test_labels,pred_labels,testing_data,test_hd,test_body
 
-dataset=pickle.load(open("dataset_pickle1.pk","rb"))
-labels=pickle.load(open("labels1.pk","rb"))
-training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
-test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
+#dataset=pickle.load(open("dataset_pickle1.pk","rb"))
+#labels=pickle.load(open("labels1.pk","rb"))
 
+#training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
+#test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
 
-classifier,max_length=train_classifier(dataset,labels,training_ids)
+training_label=pickle.load(open("training_label.pk","rb"))
+train_data=pickle.load(open("train_data.pk","rb"))
+test_label=pickle.load(open("test_label.pk","rb"))
+test_data=pickle.load(open("test_data.pk","rb"))
+
+#classifier,max_length=train_classifier(dataset,labels,training_ids)
+classifier,max_length=train_classifier(train_data,training_label)
 pickle.dump(classifier,open("trained_classifier.pk","wb"))
 print("Done Training")
-actual_labels,pred_labels,test_data,test_hd,test_body=test_classifier(dataset,classifier,labels,test_ids,max_length)
+actual_labels,pred_labels,test_data,test_hd,test_body=test_classifier(test_data,classifier,test_label,max_length)
 
 a="HD|Body|Pred|Actual|"
 for m in func_list:

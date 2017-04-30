@@ -51,7 +51,7 @@ def word2vec_feature(hd_body_dict,max_len):
 """   
 
 
-
+"""
 def entity_feature(hd_body_dict,max_len):
     score_list=[]
     count_common=0
@@ -63,7 +63,7 @@ def entity_feature(hd_body_dict,max_len):
     if(len_total==0):
         return 0
     return(count_common/len_total)         
-
+"""
 def common_noun_feature(hd_body_dict,max_len):
     hd_noun=set()
     body_noun=set()
