@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	for j in range(num_epochs):
 		for i in range(len(z)):
 			loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
-			print "Epoch %s, Batch %s of %s, Loss: %s, Accuracy: %s", %(j,i,len(z),loss,accuracy)
+			print "Epoch ", j, " Batch ", i, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
 
 	# model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
 
