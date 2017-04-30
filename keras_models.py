@@ -9,6 +9,7 @@ from keras.models import Sequential
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
 from keras.models import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.regularizers import l2
 
 embedding_dim = 300
 sentence_hidden_layer_size = 300
