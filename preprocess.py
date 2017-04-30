@@ -125,8 +125,8 @@ class PreProcessor:
         bodies_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,0])
         headlines_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,1])
         
-        max_seq_length = max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
-                                max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
+        max_seq_length = 300 #max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
+                                #max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
         headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
