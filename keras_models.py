@@ -4,6 +4,7 @@ import keras
 import keras.backend as K
 import argparse
 import tempfile
+import numpy as np
 
 from keras.models import Sequential
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
@@ -91,7 +92,18 @@ if __name__ == "__main__":
 	# Save the best model during validation and bail out of training early if we're not improving
 	# callbacks = [EarlyStopping(patience=patience), ModelCheckpoint(tmpfn, save_best_only=True, save_weights_only=True)]
 
-	model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
+	per_batch = int(len(bodies)/batch_size)
+
+	indices = np.array(range(len(bodies)))
+	np.random.shuffle(indices)
+	z = np.array_split(indices,per_batch)
+
+	for j in range(num_epochs):
+		for i in range(len(z)):
+			loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
+			print "Epoch %s, Batch %s of %s, Loss: %s, Accuracy: %s", %(j,i,len(z),loss,accuracy)
+
+	# model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
 
 	# Restore the best found model during validation
 	# model.load_weights(tmpfn)
