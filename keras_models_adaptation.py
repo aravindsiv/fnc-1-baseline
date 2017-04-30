@@ -43,7 +43,6 @@ if __name__ == "__main__":
 	print(str(headlines_t.shape))
 	print(str(labels_t.shape))
 
-	print(bodies.shape())
 	if args['rnn'] == 'no':
 		RNN = None
 		fprefix = "SumRNN"
