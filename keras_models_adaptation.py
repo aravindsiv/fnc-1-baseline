@@ -5,6 +5,7 @@ import keras.backend as K
 import argparse
 import tempfile
 
+from keras.regularizers import l2
 from keras.models import Sequential
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
 from keras.models import Model
