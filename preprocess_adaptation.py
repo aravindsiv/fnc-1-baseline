@@ -74,7 +74,9 @@ class PreProcessor:
         return train_data_k, test_data_k
     
     def make_data_keras(self,fold):
-        train_data_k, test_data_k = self.make_data_fold(fold)
+        #train_data_k, test_data_k = self.make_data_fold(fold)
+        # skip the folding part for SNLI dataset.
+        train_data_k, test_data_k = self.train_data, self.test_data
                 
         bodies_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,0])
         headlines_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,1])
