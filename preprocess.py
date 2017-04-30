@@ -44,20 +44,29 @@ class PreProcessor:
                 
         self.train_data = []
         self.test_data = []
-        
+        self.complete_train=[]
+        self.complete_test=[]
         for i in bodies:
             for j in range(len(headlines[i])):
-                if stances[i][j] != "unrelated":
+                
                     if i in train_ids:
-                        self.train_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                        self.complete_train.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                        if stances[i][j] != "unrelated":
+                             self.train_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
                     else:
-                        self.test_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                        self.complete_test.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
+                        if stances[i][j] != "unrelated":
+                             self.test_data.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
                         
         self.train_data = np.array(self.train_data)
         self.test_data = np.array(self.test_data)
+        self.complete_train = np.array(self.complete_train)
+        self.complete_test = np.array(self.complete_test)        
         
         print "Number of training examples: %s" %(len(self.train_data))
         print "Number of test examples: %s" %(len(self.test_data))
+        print "Number of training examples: %s" %(len(self.complete_train))
+        print "Number of test examples: %s" %(len(self.complete_test))        
 
     def preprocess_keras(self):
         self.tokenizer = Tokenizer()
@@ -73,8 +82,8 @@ class PreProcessor:
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
         
     def preprocess_stageone(self):
-        train_labels,train_data=preprocess_func(self.train_data)
-        test_labels,test_data=preprocess_func(self.test_data)
+        train_labels,train_data=preprocess_func(self.complete_train)
+        test_labels,test_data=preprocess_func(self.complete_test)
         pickle.dump(train_labels,open("training_label.pk","wb"))
         pickle.dump(train_data,open("train_data.pk","wb"))
         pickle.dump(test_labels,open("test_label.pk","wb"))
@@ -174,5 +183,5 @@ if __name__ == "__main__":
     pp.preprocess_stageone()
 
     
-    _ = pp.make_data_keras(0)
+    #_ = pp.make_data_keras(0)
     
