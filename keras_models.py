@@ -38,10 +38,13 @@ if __name__ == "__main__":
 
 	if args['rnn'] == 'no':
 		RNN = None
+		fprefix = "SumRNN"
 	elif args['rnn'] == 'lstm':
 		RNN = recurrent.LSTM 
+		fprefix = "lstm"
 	elif args ['rnn'] == 'gru':
 		RNN = recurrent.GRU
+		fprefix = "gru"
 	else:
 		print "Invalid arg for rnn"
 		RNN = None
@@ -96,5 +99,5 @@ if __name__ == "__main__":
 	print "Test loss: %s, accuracy: %s" %(loss, acc)
 
 	# Save final model, just to be safe
-	model.save("models/SumRNN_"+str(args['fold'])+".h5")
+	model.save("models/"+fprefix+"_"+str(args['fold'])+".h5")
 
