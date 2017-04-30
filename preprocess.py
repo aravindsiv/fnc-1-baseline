@@ -48,7 +48,6 @@ class PreProcessor:
         self.complete_test=[]
         for i in bodies:
             for j in range(len(headlines[i])):
-                
                     if i in train_ids:
                         self.complete_train.append([_normalize(bodies[i]),_normalize(headlines[i][j]),_normalize(stances[i][j]),i])
                         if stances[i][j] != "unrelated":
@@ -65,8 +64,8 @@ class PreProcessor:
         
         print "Number of training examples: %s" %(len(self.train_data))
         print "Number of test examples: %s" %(len(self.test_data))
-        print "Number of training examples: %s" %(len(self.complete_train))
-        print "Number of test examples: %s" %(len(self.complete_test))        
+        print "Number of full training examples: %s" %(len(self.complete_train))
+        print "Number of full test examples: %s" %(len(self.complete_test))        
 
     def preprocess_keras(self):
         self.tokenizer = Tokenizer()
@@ -116,7 +115,7 @@ class PreProcessor:
 
         return train_data_k, test_data_k
     
-    def make_data_keras(self,fold):
+    def make_data_keras(self,fold,mode="train"):
         train_data_k, test_data_k = self.make_data_fold(fold)
                 
         bodies_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,0])
@@ -149,8 +148,12 @@ class PreProcessor:
         print "Shape ofs bodies data tensor: " +str(bodies_data.shape)
         print "Shape of headlines data tensor: " +str(headlines_data.shape)
         print "Shape of labels tensor: " + str(labels.shape)
-        
-        return {"train":[bodies_data, headlines_data, labels],"test":[bodies_data_test, headlines_data_test, labels_test],"max_seq_length":max_seq_length}
+
+        if mode == "train":
+            return {"train":[bodies_data, headlines_data, labels],"test":[bodies_data_test, headlines_data_test, labels_test],"max_seq_length":max_seq_length}
+        else:
+            return {"bodies":bodies_data_test,"headlines":headlines_data_test,"labels":labels_test}
+
 
     def get_embedding_matrix(self,we_file="fnc-1/glove.6B.300d.txt"):
         embeddings_index = {}
