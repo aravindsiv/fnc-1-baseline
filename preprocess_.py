@@ -16,7 +16,7 @@ nlp = spacy.load('en')
 #dataset = DataSet()
 
 #folds,hold_out_ids=kfold_split(dataset)
-
+COUNT_TOKENS=-1
 def preprocess_func(dataset):
     output={}
     data_proc=[]
@@ -47,6 +47,21 @@ def preprocess_func(dataset):
             buff["body_tok"]=[]
             #print (buff["body"])
             doc_body = nlp(unicode(buff["body"]))
+            count_tok=0
+            sent_num=0
+   
+            for span in doc_body.sents:
+                if(sent_num==1):
+                    break
+                sent = ''.join(doc_body[i].string for i in range(span.start, span.end)).strip()
+                sent_list.append(sent.split())
+                for m_tok in span:
+                    count_tok+=1
+                    if(COUNT_TOKENS>=0):
+                        if(count_tok==COUNT_TOKENS):
+                            sent_num=1
+                            break  
+                #sent_num+=1
             """
             entity_list=[]
             buff_list=[]
@@ -66,7 +81,8 @@ def preprocess_func(dataset):
             for word in doc_body:
                 buff["body_pos"].append(word.pos_)
                 buff["body_tok"].append(word.text)
-            
+            buff["body_pos"]=buff["body_pos"][0:count_tok]
+            buff["body_tok"]=buff["body_tok"][0:count_tok]
             
     
         doc_hd=nlp(unicode(buff["hd"]))
