@@ -95,14 +95,6 @@ def test_classifier(classifier,test_data,labels,max_length=0):
 #training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
 #test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
 
-#training_label=pickle.load(open("training_label.pk","rb"))
-#train_data=pickle.load(open("train_data.pk","rb"))
-#test_label=pickle.load(open("test_label.pk","rb"))
-#test_data=pickle.load(open("test_data.pk","rb"))
-
-#classifier,max_length=train_classifier(dataset,labels,training_ids)
-#classifier,max_length=train_classifier(train_data,training_label)
-#pickle.dump(classifier,open("trained_classifier.pk","wb"))
 #print("Done Training")
 #actual_labels,pred_labels,test_data,test_hd,test_body=test_classifier(test_data,classifier,test_label,max_length)
 
@@ -122,3 +114,11 @@ def test_classifier(classifier,test_data,labels,max_length=0):
 #print("unrelated number",actual_labels.count("unrelated"),"\n")
 #print(confusion_matrix(actual_labels, pred_labels))
 
+if __name__ == "__main__":
+    training_label=pickle.load(open("training_label.pk","rb"))
+    train_data=pickle.load(open("train_data.pk","rb"))
+    test_label=pickle.load(open("test_label.pk","rb"))
+    test_data=pickle.load(open("test_data.pk","rb"))
+    #classifier=train_classifier(dataset,labels,training_ids)
+    classifier=train_classifier(train_data,training_label)
+    pickle.dump(classifier,open("trained_classifier.pk","wb"))

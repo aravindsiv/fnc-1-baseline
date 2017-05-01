@@ -203,7 +203,7 @@ class PreProcessor:
 
 if __name__ == "__main__":
     pp = PreProcessor()
-    pp.preprocess_keras()
+    #pp.preprocess_keras()
     pp.preprocess_stageone()
 
     
