@@ -12,7 +12,8 @@ import argparse
 import sys
 from preprocess import PreProcessor
 from main_file import train_classifier, test_classifier
-
+label_dict={"related":0,"unrelated":1}
+reverse_dict={1:"unrelated",0:"related"}
 
 def an():
     return an
@@ -32,5 +33,13 @@ if __name__ == "__main__":
     file_name="stage_one"+str(fold)+model_type
     classifier=train_classifier(train_data,train_labels,path_file+file_name,model_type)
     pred_labels,test_labels=test_classifier(classifier,test_data,test_labels,max_length=0)
-    print(file_name,accuracy_score(test_labels, pred_labels))
+    new_dict=[]
+    for k in pred_labels:
+        if(k[0]==1):
+            new_dict.append(reverse_dict[0])
+         elif(k[1]==1)
+             new_dict.append(reverse_dict[1])
+        
+    #print(file_name,accuracy_score(test_labels, pred_labels))
+    print(file_name,accuracy_score(test_labels, new_dict))
     
