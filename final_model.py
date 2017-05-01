@@ -5,7 +5,7 @@ import numpy as np
 if __name__ == '__main__':
     pp = PreProcessor()
     test_data = []
-    filtered_test_data = pp.first_stage_model(test_data,'trained_classifier.pk')
+    filtered_test_data = pp.first_stage_predicition(test_data,'trained_classifier.pk')
     model = load_model('my_model.h5')
     bodies = np.asarray(model[1])
     headlines = np.asarray(model[2])
