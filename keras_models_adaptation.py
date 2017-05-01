@@ -37,7 +37,6 @@ if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser()
 
-	parser.add_argument('-fold',help='fold to train the model on',default='0')
 	parser.add_argument('-rnn',help='no | lstm | gru',default='no')
 
 	args = vars(parser.parse_args())
@@ -121,5 +120,5 @@ if __name__ == "__main__":
 	print "Test loss: %s, accuracy: %s" %(loss, acc)
 
 	# Save final model, just to be safe
-	model.save("models/"+fprefix+"_"+str(args['fold'])+".h5")
+	model.save("models_snli/"+fprefix+".h5")
 
