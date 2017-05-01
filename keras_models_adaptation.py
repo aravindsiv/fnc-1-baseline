@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
 	args = vars(parser.parse_args())
 
-	data_dict = pp.make_data_keras(args['fold'])
+	data_dict = pp.make_data_keras()
 	bodies, headlines, labels = data_dict["train"]
 	bodies_t, headlines_t, labels_t = data_dict["test"]
 	max_seq_length = data_dict["max_seq_length"]

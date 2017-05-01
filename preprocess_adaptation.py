@@ -37,45 +37,8 @@ class PreProcessor:
             self.label_index[j] = i
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
-        
-    def preprocess_stageone(self):
-        train_labels,train_data=preprocess_func(self.train_data)
-        test_labels,test_data=preprocess_func(self.test_data)
-        pickle.dump(train_labels,open("training_label.pk","wb"))
-        pickle.dump(train_data,open("train_data.pk","wb"))
-        pickle.dump(test_labels,open("test_label.pk","wb"))
-        pickle.dump(test_data,open("test_data.pk","wb"))
-
-        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))
-
-    def make_data_fold(self,k,splits_folder="splits/"):
-        '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
-        particular model.'''
-        train_data_k = []
-        test_data_k = []
-
-        test_ids = []
-        with open(splits_folder+"training_ids_"+str(k)+".txt") as f:
-            for l in f:
-                test_ids.append(int(l))
-
-        for i in range(self.train_data.shape[0]):
-            if int(self.train_data[i,3]) in test_ids:
-                test_data_k.append(self.train_data[i,0:3])
-            else:
-                train_data_k.append(self.train_data[i,0:3])
-
-        train_data_k = np.array(train_data_k)
-        test_data_k = np.array(test_data_k)
-
-        print "Number of training examples for fold %s: %s" %(k,len(train_data_k))
-        print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
-
-        return train_data_k, test_data_k
     
-    def make_data_keras(self,fold):
-        #train_data_k, test_data_k = self.make_data_fold(fold)
-        # skip the folding part for SNLI dataset.
+    def make_data_keras(self):
         train_data_k, test_data_k = self.train_data, self.test_data
                 
         bodies_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,0])
@@ -85,7 +48,7 @@ class PreProcessor:
         headlines_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,1])
         
         max_seq_length = 400 #max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
-                                max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
+                                #max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
         headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
