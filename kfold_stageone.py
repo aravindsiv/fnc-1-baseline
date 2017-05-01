@@ -12,6 +12,7 @@ import argparse
 import sys
 from preprocess import PreProcessor
 from main_file import train_classifier, test_classifier
+import numpy as np
 label_dict={"related":0,"unrelated":1}
 reverse_dict={1:"unrelated",0:"related"}
 
@@ -35,11 +36,10 @@ if __name__ == "__main__":
     pred_labels,test_labels=test_classifier(classifier,test_data,test_labels,max_length=0)
     new_dict=[]
     for k in pred_labels:
-        if(k[0]==1):
-            new_dict.append(reverse_dict[0])
-         elif(k[1]==1)
-             new_dict.append(reverse_dict[1])
+        buff=np.argmax(k)
+        new_dict.append(reverse_dict[buff])
         
     #print(file_name,accuracy_score(test_labels, pred_labels))
+    print new_dict
     print(file_name,accuracy_score(test_labels, new_dict))
     
