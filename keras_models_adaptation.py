@@ -20,6 +20,16 @@ num_epochs = 10
 patience = 5
 L2 = 4e-6
 
+def test_model(model_file,data_dict):
+	model = load_model(model_file)
+	bodies = data_dict["bodies"]
+	headlines = data_dict["headlines"]
+	gold_labels = data_dict["labels"]
+
+	loss, acc = model.evaluate([bodies_t, headlines_t],labels_t)
+	print "Test loss: %s, accuracy: %s" %(loss, acc)
+
+
 if __name__ == "__main__":
 	pp = PreProcessor()
 	pp.preprocess_keras()
@@ -37,13 +47,6 @@ if __name__ == "__main__":
 	bodies_t, headlines_t, labels_t = data_dict["test"]
 	max_seq_length = data_dict["max_seq_length"]
 
-	print(str(bodies.shape))
-	print(str(headlines.shape))
-	print(str(labels.shape))
-	print(str(bodies_t.shape))
-	print(str(headlines_t.shape))
-	print(str(labels_t.shape))
-
 	if args['rnn'] == 'no':
 		RNN = None
 		fprefix = "SumRNN"
@@ -57,7 +60,7 @@ if __name__ == "__main__":
 		print "Invalid arg for rnn"
 		RNN = None
 
-	embed = Embedding(len(pp.tokenizer.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=max_seq_length)
+	embed = Embedding(len(pp.tokenizer.word_index)+1,embedding_dim,weights=[embedding_matrix],input_length=max_seq_length,trainable=False)
 
 	SumEmbeddings = keras.layers.core.Lambda(lambda x: K.sum(x,axis=1),output_shape=(sentence_hidden_layer_size,))
 
@@ -98,7 +101,18 @@ if __name__ == "__main__":
 	# Save the best model during validation and bail out of training early if we're not improving
 	# callbacks = [EarlyStopping(patience=patience), ModelCheckpoint(tmpfn, save_best_only=True, save_weights_only=True)]
 
-	model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
+	per_batch = int(len(bodies)/batch_size)
+
+	indices = np.array(range(len(bodies)))
+	np.random.shuffle(indices)
+	z = np.array_split(indices,per_batch)
+
+	for j in range(num_epochs):
+		for i in range(len(z)):
+			loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
+			print "Epoch ", j+1, " Batch ", i+1, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
+
+	# model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
 
 	# Restore the best found model during validation
 	# model.load_weights(tmpfn)

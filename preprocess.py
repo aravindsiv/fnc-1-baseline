@@ -83,6 +83,7 @@ class PreProcessor:
     def preprocess_stageone(self):
         train_labels,train_data=preprocess_func(self.complete_train)
         test_labels,test_data=preprocess_func(self.complete_test)
+
         pickle.dump(train_labels,open("training_label.pk","wb"))
         pickle.dump(train_data,open("train_data.pk","wb"))
         pickle.dump(test_labels,open("test_label.pk","wb"))
@@ -124,7 +125,7 @@ class PreProcessor:
         bodies_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,0])
         headlines_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,1])
         
-        max_seq_length = 300 #max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
+        max_seq_length = 400 #max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
                                 #max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
