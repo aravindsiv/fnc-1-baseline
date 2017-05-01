@@ -34,12 +34,15 @@ if __name__ == "__main__":
     file_name="stage_one"+str(fold)+model_type
     classifier=train_classifier(train_data,train_labels,path_file+file_name,model_type)
     pred_labels,test_labels=test_classifier(classifier,test_data,test_labels,max_length=0)
-    new_dict=[]
-    for k in pred_labels:
-        buff=np.argmax(k)
-        new_dict.append(reverse_dict[buff])
+    if(model_type in ["nn"])
+        new_dict=[]
+        for k in pred_labels:
+            buff=np.argmax(k)
+            new_dict.append(reverse_dict[buff])
+    else:
+        new_dict=pred_labels        
         
     #print(file_name,accuracy_score(test_labels, pred_labels))
-    print new_dict
+    #print new_dict
     print(file_name,accuracy_score(test_labels, new_dict))
     

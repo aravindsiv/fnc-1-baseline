@@ -64,10 +64,15 @@ def train_classifier(train_data,train_labels,file_name,option="logistic"):
         training_data.append(obs)
         #current_label=labels[i]
         current_label = train_labels[i]
-        if(current_label in ["agree","discuss","disagree"]):
-            current_label=label_dict["related"]
+        if(option=="nn")
+            if(current_label in ["agree","discuss","disagree"]):
+                current_label=label_dict["related"]
+            else:
+                current_label=label_dict["unrelated"]
         else:
-            current_label=label_dict["unrelated"]
+            if(current_label in ["agree","discuss","disagree"]):
+                current_label="related"
+            
         training_labels.append(current_label)
     print("Training Started")
     print(training_data[:3])
