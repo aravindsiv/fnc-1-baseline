@@ -1,4 +1,4 @@
-declare -a arr=("logistic" "svm")
+declare -a arr=("no" "lstm" "gru")
 
 for i in `seq 0 4`;
 do
