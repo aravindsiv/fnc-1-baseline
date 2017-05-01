@@ -24,6 +24,9 @@ def read_json_data(src_folder="data/"):
         count_contradiction = 0
         count_entailment = 0
         for idx, row in enumerate(data_rows):
+            if row["gold_label"] == "-":
+                continue
+
             if row["gold_label"] == "neutral" and count_neutral < 17000:
                 count_neutral += 1
                 train_data.append([_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx])
@@ -38,11 +41,11 @@ def read_json_data(src_folder="data/"):
 
     with open(src_folder+file_name_test) as data_file:
         data_rows = json.load(data_file)
-        test_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+        test_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows) if row["gold_label"] != "-"]
 
     with open(src_folder+file_name_dev) as data_file:
         data_rows = json.load(data_file)
-        dev_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+        dev_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows) if row["gold_label"] != "-"]
 
     return np.array(train_data), np.array(test_data), np.array(dev_data)
 
