@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 declare -a arr=("logistic" "svm")
 
 for i in `seq 0 4`;
