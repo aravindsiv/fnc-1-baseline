@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from preprocess import _normalize
+from preprocess_adaptation import _normalize
 
 file_name_train = "snli_1.0_train.json"
 file_name_test = "snli_1.0_test.json"

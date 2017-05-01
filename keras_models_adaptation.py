@@ -15,7 +15,7 @@ embedding_dim = 300
 sentence_hidden_layer_size = 300
 activation = 'relu'
 dropout_rate = 0.2
-batch_size = 64
+batch_size = 512
 num_epochs = 10
 patience = 5
 L2 = 4e-6
@@ -100,18 +100,18 @@ if __name__ == "__main__":
 	# Save the best model during validation and bail out of training early if we're not improving
 	# callbacks = [EarlyStopping(patience=patience), ModelCheckpoint(tmpfn, save_best_only=True, save_weights_only=True)]
 
-	per_batch = int(len(bodies)/batch_size)
+	# per_batch = int(len(bodies)/batch_size)
 
-	indices = np.array(range(len(bodies)))
-	np.random.shuffle(indices)
-	z = np.array_split(indices,per_batch)
+	# indices = np.array(range(len(bodies)))
+	# np.random.shuffle(indices)
+	# z = np.array_split(indices,per_batch)
 
-	for j in range(num_epochs):
-		for i in range(len(z)):
-			loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
-			print "Epoch ", j+1, " Batch ", i+1, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
+	# for j in range(num_epochs):
+	# 	for i in range(len(z)):
+	# 		loss, accuracy = model.train_on_batch([bodies[z[i]],headlines[z[i]]],labels[z[i]])
+	# 		print "Epoch ", j+1, " Batch ", i+1, " of ", len(z), " Loss: ", loss, " Accuracy: ", accuracy
 
-	# model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
+	model.fit([bodies, headlines], labels,batch_size=batch_size,epochs=num_epochs)#,callbacks=callbacks)
 
 	# Restore the best found model during validation
 	# model.load_weights(tmpfn)
