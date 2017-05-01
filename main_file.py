@@ -80,7 +80,7 @@ def train_classifier(train_data,train_labels,file_name,option="logistic"):
         return model
     else:
         classifier.fit(training_vector,training_labels)
-        pickle.dump(classifier,open(filename,"wb"))
+        pickle.dump(classifier,open(file_name,"wb"))
         return classifier
 
 def test_classifier(classifier,test_data,labels,max_length=0):
