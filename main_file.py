@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn import svm
 from keras.models import Sequential
 from keras.layers import Dense, Activation
+from keras.utils import to_categorical
 
 def warn(*args, **kwargs):
     pass
@@ -75,7 +76,8 @@ def train_classifier(train_data,train_labels,file_name,option="logistic"):
         model.add(Dense(2))
         model.add(Activation('softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-        model.fit(training_vector,training_labels,epochs=5,batch_size=32)
+        model.summary()
+        model.fit(training_vector,to_categorical(training_labels),epochs=5,batch_size=32)
         model.save(file_name+".h5") # File should be a .h5 file.
         return model
     else:
