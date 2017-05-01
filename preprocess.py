@@ -131,9 +131,9 @@ class PreProcessor:
 
         for i in range(self.train_data.shape[0]):
             if int(self.train_data[i,3]) in test_ids:
-                test_data_k.append(self.train_data[i,0:4])
+                test_data_k.append(self.train_data[i,0:3])
             else:
-                train_data_k.append(self.train_data[i,0:4])
+                train_data_k.append(self.train_data[i,0:3])
 
         train_data_k = np.array(train_data_k)
         test_data_k = np.array(test_data_k)
@@ -157,9 +157,9 @@ class PreProcessor:
 
         for i in range(self.complete_train.shape[0]):
             if int(self.complete_train[i,3]) in test_ids:
-                test_data_k.append(self.complete_train[i,0:3])
+                test_data_k.append(self.complete_train[i,0:4])
             else:
-                train_data_k.append(self.complete_train[i,0:3])
+                train_data_k.append(self.complete_train[i,0:4])
 
         train_data_k = np.array(train_data_k)
         test_data_k = np.array(test_data_k)
