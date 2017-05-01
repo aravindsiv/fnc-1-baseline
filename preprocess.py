@@ -84,7 +84,7 @@ class PreProcessor:
         classifier=pickle.load(open(file_name,"rb"))
         return classifier
         
-    def first_stage_predicition(self,classifier,test_data):
+    def first_stage_predicition(self,test_data, file_name):
         classifier=pickle.load(open(file_name,"rb"))
         test_labels,test_data=preprocess_func(test_data)
         pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
