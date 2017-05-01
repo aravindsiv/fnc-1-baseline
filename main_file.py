@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn import svm
-from keras.models import Sequential
+from keras.models import Sequential, Activation
 from keras.layers import Dense
 
 def warn(*args, **kwargs):
