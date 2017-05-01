@@ -15,7 +15,23 @@ def read_json_data(src_folder="data/"):
     """
     with open(src_folder+file_name_train) as data_file:
         data_rows = json.load(data_file)
-        train_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+        train_data = []
+        count_neutral = 0
+        count_contradiction = 0
+        count_entailment = 0
+        for idx, row in enumerate(data_rows):
+            if row["gold_label"] == "neutral" and count_neutral < 17000:
+                count_neutral += 1
+                train_data.append([_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx])
+            elif row["gold_label"] == "contradiction" and count_contradiction < 17000:
+                count_contradiction += 1
+                train_data.append([_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx])
+            elif row["gold_label"] == "entailment" and count_entailment < 17000:
+                count_entailment += 1
+                train_data.append([_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx])
+            else:
+                continue
+        #train_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
 
     with open(src_folder+file_name_test) as data_file:
         data_rows = json.load(data_file)
