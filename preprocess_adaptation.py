@@ -1,8 +1,6 @@
-import cPickle as pickle
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
-from collections import defaultdict
 from preprocess_ import preprocess_func
 
 import csv
