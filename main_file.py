@@ -6,7 +6,8 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn import svm
-
+from keras.models import Sequential
+from keras.layers import Dense
 
 def warn(*args, **kwargs):
     pass
@@ -67,9 +68,20 @@ def train_classifier(train_data,train_labels,file_name,option="logistic"):
     print(training_data[:3])
     training_vector=np.array(training_data)
     training_labels=np.array(training_labels)
-    classifier.fit(training_vector,training_labels)
-    pickle.dump(classifier,open(filename,"wb"))
-    return classifier
+    if option == "nn":
+        model = Sequential()
+        model.add(Dense(4,input_dim=3))
+        model.add(Activation('relu'))
+        model.add(Dense(2))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        model.fit(training_vector,training_labels,epochs=5,batch_size=32)
+        model.save(file_name) # File should be a .h5 file.
+        return model
+    else:
+        classifier.fit(training_vector,training_labels)
+        pickle.dump(classifier,open(filename,"wb"))
+        return classifier
 
 def test_classifier(classifier,test_data,labels,max_length=0):
 
@@ -91,6 +103,7 @@ def test_classifier(classifier,test_data,labels,max_length=0):
         test_labels.append(current_label)
     test_vector=np.array(testing_data)
     pred_labels=classifier.predict(test_vector)
+    # model.predict(test_vector) # if you are using keras
     #return test_labels,pred_labels,testing_data,test_hd,test_body
     return pred_labels,test_labels
 
