@@ -1,19 +1,34 @@
-import cPickle as pickle
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
-from collections import defaultdict
 from preprocess_ import preprocess_func
-from data.data_adaptation import read_json_data
 
 import csv
+import json
 import numpy as np
 import unicodedata
 
+file_name_train = "snli_1.0_train.json"
+file_name_test = "snli_1.0_test.json"
+file_name_dev = "snli_1.0_dev.json"
 
 def _normalize(text):
     return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
 
+def read_json_data(src_folder="data/"):
+    with open(src_folder+file_name_train) as data_file:
+        data_rows = json.load(data_file)
+        train_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+
+    with open(src_folder+file_name_test) as data_file:
+        data_rows = json.load(data_file)
+        test_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+
+    with open(src_folder+file_name_dev) as data_file:
+        data_rows = json.load(data_file)
+        dev_data = [[_normalize(row["sentence1"]), _normalize(row["sentence2"]), _normalize(row["gold_label"]), idx] for idx, row in enumerate(data_rows)]
+
+    return np.array(train_data), np.array(test_data), np.array(dev_data)
 
 class PreProcessor:
 
@@ -37,45 +52,8 @@ class PreProcessor:
             self.label_index[j] = i
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
-        
-    def preprocess_stageone(self):
-        train_labels,train_data=preprocess_func(self.train_data)
-        test_labels,test_data=preprocess_func(self.test_data)
-        pickle.dump(train_labels,open("training_label.pk","wb"))
-        pickle.dump(train_data,open("train_data.pk","wb"))
-        pickle.dump(test_labels,open("test_label.pk","wb"))
-        pickle.dump(test_data,open("test_data.pk","wb"))
-
-        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))
-
-    def make_data_fold(self,k,splits_folder="splits/"):
-        '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
-        particular model.'''
-        train_data_k = []
-        test_data_k = []
-
-        test_ids = []
-        with open(splits_folder+"training_ids_"+str(k)+".txt") as f:
-            for l in f:
-                test_ids.append(int(l))
-
-        for i in range(self.train_data.shape[0]):
-            if int(self.train_data[i,3]) in test_ids:
-                test_data_k.append(self.train_data[i,0:3])
-            else:
-                train_data_k.append(self.train_data[i,0:3])
-
-        train_data_k = np.array(train_data_k)
-        test_data_k = np.array(test_data_k)
-
-        print "Number of training examples for fold %s: %s" %(k,len(train_data_k))
-        print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
-
-        return train_data_k, test_data_k
     
-    def make_data_keras(self,fold):
-        #train_data_k, test_data_k = self.make_data_fold(fold)
-        # skip the folding part for SNLI dataset.
+    def make_data_keras(self):
         train_data_k, test_data_k = self.train_data, self.test_data
                 
         bodies_sequence = self.tokenizer.texts_to_sequences(train_data_k[:,0])
@@ -84,8 +62,8 @@ class PreProcessor:
         bodies_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,0])
         headlines_sequence_test = self.tokenizer.texts_to_sequences(test_data_k[:,1])
         
-        max_seq_length = max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
-                                max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
+        max_seq_length = 400 #max(max([len(bodies_sequence[i]) for i in range(len(bodies_sequence))]),\
+                                #max([len(bodies_sequence_test[i]) for i in range(len(bodies_sequence_test))]))
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
         headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
@@ -138,9 +116,9 @@ class PreProcessor:
 
 if __name__ == "__main__":
     pp = PreProcessor()
-    pp.preprocess_keras()
-    pp.preprocess_stageone()
+    #pp.preprocess_keras()
+    #pp.preprocess_stageone()
 
     
-    _ = pp.make_data_keras(0)
+    #_ = pp.make_data_keras(0)
     

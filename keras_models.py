@@ -5,10 +5,6 @@ import keras.backend as K
 import argparse
 import tempfile
 import numpy as np
-import sys
-import os
-
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0) 
 
 from keras.models import Sequential, load_model
 from keras.layers import Embedding, Dense, Input, TimeDistributed, merge, Dropout, BatchNormalization, recurrent
@@ -43,7 +39,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-fold',help='fold to train the model on',default='0')
-	parser.add_argument('-rnn',help='no | lstm | lstm_1 | gru',default='no')
+	parser.add_argument('-rnn',help='no | lstm | gru',default='no')
 
 	args = vars(parser.parse_args())
 
@@ -56,13 +52,11 @@ if __name__ == "__main__":
 		RNN = None
 		fprefix = "SumRNN"
 	elif args['rnn'] == 'lstm':
-		RNN = recurrent.LSTM 
+		RNN = recurrent.LSTM
 		fprefix = "lstm"
 	elif args ['rnn'] == 'gru':
 		RNN = recurrent.GRU
 		fprefix = "gru"
-	elif args['rnn'] == 'lstm_1':
-		RNN = recurrent.LSTM
 	else:
 		print "Invalid arg for rnn"
 		RNN = None
@@ -81,11 +75,6 @@ if __name__ == "__main__":
 
 	bod = translate(bod)
 	head = translate(head)
-
-	if args['rnn'] == 'lstm_1':
-		rnn = RNN(return_sequences=True,output_dim=sentence_hidden_layer_size)
-		bod = BatchNormalization()(rnn(bod))
-		prem = BatchNormalization()(rnn(head))
 
 	rnn = SumEmbeddings if not RNN else RNN(return_sequences=False,output_dim=sentence_hidden_layer_size)
 	bod = rnn(bod)

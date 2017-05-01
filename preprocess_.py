@@ -16,7 +16,7 @@ nlp = spacy.load('en')
 #dataset = DataSet()
 
 #folds,hold_out_ids=kfold_split(dataset)
-COUNT_TOKENS=-1
+COUNT_TOKENS=400
 def preprocess_func(dataset):
     output={}
     data_proc=[]
