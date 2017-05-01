@@ -26,7 +26,7 @@ if __name__ == "__main__":
     fold=int(args['fold'])
     
     pp = PreProcessor()   
-    train_data, test_data=pp.make_data_fold(fold)
+    train_data, test_data=pp.make_data_fold_stageone(fold)
     train_labels,train_data,test_labels,test_data=pp.preprocess_stageone_noreturn(train_data,test_data)
     path_file="models/"
     file_name="stage_one"+str(fold)+model_type

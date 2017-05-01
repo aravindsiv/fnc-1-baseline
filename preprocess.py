@@ -156,7 +156,7 @@ class PreProcessor:
                 test_ids.append(int(l))
 
         for i in range(self.complete_train.shape[0]):
-            if int(self.train_data[i,3]) in test_ids:
+            if int(self.complete_train[i,3]) in test_ids:
                 test_data_k.append(self.complete_train[i,0:3])
             else:
                 train_data_k.append(self.complete_train[i,0:3])

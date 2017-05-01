@@ -76,7 +76,7 @@ def train_classifier(train_data,train_labels,file_name,option="logistic"):
         model.add(Activation('softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
         model.fit(training_vector,training_labels,epochs=5,batch_size=32)
-        model.save(file_name) # File should be a .h5 file.
+        model.save(file_name+".h5") # File should be a .h5 file.
         return model
     else:
         classifier.fit(training_vector,training_labels)
