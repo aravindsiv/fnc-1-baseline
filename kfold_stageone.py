@@ -31,6 +31,6 @@ if __name__ == "__main__":
     path_file="models/"
     file_name="stage_one"+str(fold)+model_type
     classifier=train_classifier(train_data,train_labels,path_file+file_name,model_type)
-    pred_labels,test_labels=test_classifier(classifier,test_data,labels,max_length=0)
-    print(file_name,accuracy_score(actual_labels, pred_labels))
+    pred_labels,test_labels=test_classifier(classifier,test_data,test_labels,max_length=0)
+    print(file_name,accuracy_score(test_labels, pred_labels))
     
