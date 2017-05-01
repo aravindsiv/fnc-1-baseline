@@ -108,7 +108,14 @@ class PreProcessor:
         pickle.dump(test_labels,open("test_label.pk","wb"))
         pickle.dump(test_data,open("test_data.pk","wb"))
 
-        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))  
+        #print "Found %s unique tokens" %(len(self.tokenizer.word_index)) 
+    
+    def preprocess_stageone_noreturn(self,train_data,test_data):
+        train_labels,train_data=preprocess_func(train_data)
+        test_labels,test_data=preprocess_func(test_data)
+        #classifier=train_classifier(train_data,train_labels)
+        #pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
+        return(train_labels,train_data,test_labels,test_data)
        
 
     def make_data_fold(self,k,splits_folder="splits/"):
@@ -136,6 +143,32 @@ class PreProcessor:
 
         return train_data_k, test_data_k
     
+    
+    def make_data_fold_stageone(self,k,splits_folder="splits/"):
+        '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
+        particular model, for stage one'''
+        train_data_k = []
+        test_data_k = []
+
+        test_ids = []
+        with open(splits_folder+"training_ids_"+str(k)+".txt") as f:
+            for l in f:
+                test_ids.append(int(l))
+
+        for i in range(self.complete_train.shape[0]):
+            if int(self.train_data[i,3]) in test_ids:
+                test_data_k.append(self.complete_train[i,0:3])
+            else:
+                train_data_k.append(self.complete_train[i,0:3])
+
+        train_data_k = np.array(train_data_k)
+        test_data_k = np.array(test_data_k)
+
+        print "Number of training examples for fold %s: %s" %(k,len(train_data_k))
+        print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
+        return train_data_k, test_data_k
+
+        return train_data_k, test_data_k
     def make_data_keras(self,fold,mode="train"):
         train_data_k, test_data_k = self.make_data_fold(fold)
                 

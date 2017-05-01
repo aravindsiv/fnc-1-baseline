@@ -5,6 +5,7 @@ import types
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn import svm
 
 
 def warn(*args, **kwargs):
@@ -35,9 +36,12 @@ def max_len2(train_data,key):
 
     return sum(max_length)/len(max_length)
 
-def train_classifier(train_data,train_labels):
+def train_classifier(train_data,train_labels,file_name,option="logistic"):
     print (func_list)
-    classifier = LogisticRegression(penalty='l1')
+    if(option=="logistic"):
+         classifier = LogisticRegression(penalty='l1')
+    elif(option=="svm"):
+        classifier = svm.SVC()
     training_data=[]
     training_labels=[]
     #train_data=[]
@@ -52,7 +56,7 @@ def train_classifier(train_data,train_labels):
     max_length=max_len(train_data, "hd_tok")
     for i,k in enumerate(train_data):
         obs=feature_extractor(k,max_length)
-        print (i)
+        #print (i)
         training_data.append(obs)
         #current_label=labels[i]
         current_label = train_labels[i]
@@ -64,6 +68,7 @@ def train_classifier(train_data,train_labels):
     training_vector=np.array(training_data)
     training_labels=np.array(training_labels)
     classifier.fit(training_vector,training_labels)
+    pickle.dump(classifier,open(filename,"wb"))
     return classifier
 
 def test_classifier(classifier,test_data,labels,max_length=0):
