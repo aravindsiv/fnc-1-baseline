@@ -4,11 +4,11 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from collections import defaultdict
 from preprocess_ import preprocess_func
-
+from main_file import train_classifier,test_classifier
 import csv
 import numpy as np
 import unicodedata
-
+import cPickle as pickle
 def _normalize(text):
     return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
 
@@ -79,17 +79,37 @@ class PreProcessor:
             self.label_index[j] = i
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
+    
+    def first_stage_model(self,file_name):
+        classifier=pickle.load(open(file_name,"rb"))
+        return classifier
+        
+    def first_stage_predicition(self,classifier,test_data):
+        classifier=pickle.load(open(file_name,"rb"))
+        test_labels,test_data=preprocess_func(test_data)
+        pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
+        filtered_test_data=[]
+        for i,j in enumerate(pred_labels):
+            if(j!="unrelated"):      
+                 filtered_test_data.append(test_data[i])
+        filtered_test_data=np.array(test_data)    
+        return filtered_test_data
+        
         
     def preprocess_stageone(self):
         train_labels,train_data=preprocess_func(self.complete_train)
         test_labels,test_data=preprocess_func(self.complete_test)
+        #classifier=train_classifier(train_data,train_labels)
+        #pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
+        
 
         pickle.dump(train_labels,open("training_label.pk","wb"))
         pickle.dump(train_data,open("train_data.pk","wb"))
         pickle.dump(test_labels,open("test_label.pk","wb"))
         pickle.dump(test_data,open("test_data.pk","wb"))
 
-        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))        
+        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))  
+       
 
     def make_data_fold(self,k,splits_folder="splits/"):
         '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that

@@ -64,9 +64,9 @@ def train_classifier(train_data,train_labels):
     training_vector=np.array(training_data)
     training_labels=np.array(training_labels)
     classifier.fit(training_vector,training_labels)
-    return classifier,max_length
+    return classifier
 
-def test_classifier(test_data,classifier,labels,max_length):
+def test_classifier(classifier,test_data,labels,max_length=0):
 
     testing_data=[]
     test_labels=[]
@@ -86,7 +86,8 @@ def test_classifier(test_data,classifier,labels,max_length):
         test_labels.append(current_label)
     test_vector=np.array(testing_data)
     pred_labels=classifier.predict(test_vector)
-    return test_labels,pred_labels,testing_data,test_hd,test_body
+    #return test_labels,pred_labels,testing_data,test_hd,test_body
+    return pred_labels,test_labels
 
 #dataset=pickle.load(open("dataset_pickle1.pk","rb"))
 #labels=pickle.load(open("labels1.pk","rb"))
@@ -94,30 +95,30 @@ def test_classifier(test_data,classifier,labels,max_length):
 #training_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/training_ids.txt","rb")]
 #test_ids=[int(k.strip()) for k in open("/home/ubuntu/ml_project/fnc-1-baseline/splits/hold_out_ids.txt","rb")]
 
-training_label=pickle.load(open("training_label.pk","rb"))
-train_data=pickle.load(open("train_data.pk","rb"))
-test_label=pickle.load(open("test_label.pk","rb"))
-test_data=pickle.load(open("test_data.pk","rb"))
+#training_label=pickle.load(open("training_label.pk","rb"))
+#train_data=pickle.load(open("train_data.pk","rb"))
+#test_label=pickle.load(open("test_label.pk","rb"))
+#test_data=pickle.load(open("test_data.pk","rb"))
 
 #classifier,max_length=train_classifier(dataset,labels,training_ids)
-classifier,max_length=train_classifier(train_data,training_label)
-pickle.dump(classifier,open("trained_classifier.pk","wb"))
-print("Done Training")
-actual_labels,pred_labels,test_data,test_hd,test_body=test_classifier(test_data,classifier,test_label,max_length)
+#classifier,max_length=train_classifier(train_data,training_label)
+#pickle.dump(classifier,open("trained_classifier.pk","wb"))
+#print("Done Training")
+#actual_labels,pred_labels,test_data,test_hd,test_body=test_classifier(test_data,classifier,test_label,max_length)
 
-a="HD|Body|Pred|Actual|"
-for m in func_list:
-    a+=m+"|"
-file_output=open("logger_file.txt","w")
-logger=file_output.write
-logger("%s\n"%a)
-for i,k in enumerate(pred_labels):
-    if(actual_labels[i]!=k):        
-        logger("%s|%s|%s|%s|%s|%s|%s\n"%(test_hd[i],test_body[i],k,actual_labels[i],test_data[i][0],test_data[i][1],test_data[i][2]))
-file_output.close()
+#a="HD|Body|Pred|Actual|"
+#for m in func_list:
+#    a+=m+"|"
+#file_output=open("logger_file.txt","w")
+#logger=file_output.write
+#logger("%s\n"%a)
+#for i,k in enumerate(pred_labels):
+#    if(actual_labels[i]!=k):        
+#        logger("%s|%s|%s|%s|%s|%s|%s\n"%(test_hd[i],test_body[i],k,actual_labels[i],test_data[i][0],test_data[i][1],test_data[i][2]))
+#file_output.close()
 
-print(accuracy_score(actual_labels, pred_labels))
-print("related number",actual_labels.count("related"),"\n")
-print("unrelated number",actual_labels.count("unrelated"),"\n")
-print(confusion_matrix(actual_labels, pred_labels))
+#print(accuracy_score(actual_labels, pred_labels))
+#print("related number",actual_labels.count("related"),"\n")
+#print("unrelated number",actual_labels.count("unrelated"),"\n")
+#print(confusion_matrix(actual_labels, pred_labels))
 
