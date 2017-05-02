@@ -34,7 +34,7 @@ if __name__ == "__main__":
     file_name="stage_one"+str(fold)+model_type
     classifier=train_classifier(train_data,train_labels,path_file+file_name,model_type)
     pred_labels,test_labels=test_classifier(classifier,test_data,test_labels,max_length=0)
-    if(model_type in ["nn"])
+    if(model_type in ["nn"]):
         new_dict=[]
         for k in pred_labels:
             buff=np.argmax(k)
