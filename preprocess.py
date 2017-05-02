@@ -2,6 +2,7 @@ import cPickle as pickle
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
+from keras.models import load_model
 from collections import defaultdict
 from preprocess_ import preprocess_func
 from main_file import train_classifier,test_classifier
@@ -11,6 +12,7 @@ import unicodedata
 import cPickle as pickle
 def _normalize(text):
     return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
+reverse_dict={1:"unrelated",0:"related"}
 
 class PreProcessor:
     def __init__(self,splits_folder="splits/",data_folder="fnc-1/"):
@@ -84,12 +86,18 @@ class PreProcessor:
         classifier=pickle.load(open(file_name,"rb"))
         return classifier
         
-    def first_stage_predicition(self,test_data, file_name):
-        classifier=pickle.load(open(file_name,"rb"))
+    def first_stage_predicition(self,test_data, file_name,model_type=0):
+        if(model_type==0): #0 for logidtic svm
+            classifier=pickle.load(open(file_name,"rb"))
+        else:
+            classifier=load_model(file_name)
         test_labels,test_data=preprocess_func(test_data)
         pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
         filtered_test_data=[]
         for i,j in enumerate(pred_labels):
+            if(model_type!=0):
+                buff=np.argmax(j)
+                j=reverse_dict[buff]
             if(j!="unrelated"):      
                  filtered_test_data.append(test_data[i])
         filtered_test_data=np.array(test_data)    
