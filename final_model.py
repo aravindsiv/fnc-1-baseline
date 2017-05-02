@@ -19,6 +19,7 @@ if __name__ == '__main__':
     test_data = pp.complete_test
     filtered_test_data = pp.first_stage_predicition(test_data,base_string,flag) # 0 for logistic, svm , 1 for Neural Network
     print "got filtered data"
+    print filtered_test_data.shape
     model = load_model('lstm_2.h5')
     bodies = filtered_test_data[:,0]
     headlines = filtered_test_data[:,1]
