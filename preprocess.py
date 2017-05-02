@@ -123,7 +123,7 @@ class PreProcessor:
         test_labels,test_data=preprocess_func(test_data)
         #classifier=train_classifier(train_data,train_labels)
         #pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
-        return(train_labels,train_data,test_labels,test_data)
+        return(train_labels,train_data,test_labels,test_data)        
        
 
     def make_data_fold(self,k,splits_folder="splits/"):
@@ -177,6 +177,26 @@ class PreProcessor:
         return train_data_k, test_data_k
 
         return train_data_k, test_data_k
+
+    def make_data_test(self,bodies,headlines,stances):
+        bodies_sequence = self.tokenizer.texts_to_sequences(bodies)
+        headlines_sequence = self.tokenizer.texts_to_sequences(headlines)
+
+        max_seq_length = 400
+
+        bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
+        headlines_data = pad_sequences(headlines_data_test,maxlen=max_seq_length)
+
+        labels = np.zeros((len(bodies_data,1)))
+
+        for i in range(len(bodies_data)):
+            labels[i] = stances[i]
+
+        labels = to_categorical(labels)
+
+        return bodies_data, headlines_data, labels
+
+
     def make_data_keras(self,fold,mode="train"):
         train_data_k, test_data_k = self.make_data_fold(fold)
                 
