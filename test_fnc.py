@@ -1,5 +1,6 @@
 from preprocess import PreProcessor
 from keras_models import test_model
+from sklearn.metrics import pairwise
 
 if __name__ == "__main__":
     pp = PreProcessor()
