@@ -20,8 +20,12 @@ if __name__ == '__main__':
     test_data = pp.complete_test
     filtered_test_data = pp.first_stage_predicition(test_data,base_string,flag) # 0 for logistic, svm , 1 for Neural Network
     keras_data = []
+    
     for i in range(filtered_test_data.shape[0]):
-      
+        if filtered_test_data[i,2] != "unrelated":
+            keras_data.append(filtered_test_data[i])
+
+    keras_data = np.array(keras_data)
 
     model = load_model('lstm_2.h5')
     bodies = filtered_test_data[:,0]
