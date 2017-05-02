@@ -12,6 +12,6 @@ if __name__ == "__main__":
     bodies, headlines, labels = data_dict["train"]
     bodies_t, headlines_t, labels_t = data_dict["test"]
 
-    model = load_model("models/"+model_name)
+    model = load_model("models_snli/"+model_name)
     loss, acc = model.evaluate([bodies_t, headlines_t], labels_t)
     print "Test loss: %s, accuracy: %s" % (loss, acc)
