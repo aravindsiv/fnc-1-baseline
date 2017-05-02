@@ -19,11 +19,11 @@ if __name__ == "__main__":
     data_dict_3 = pp.make_data_keras(3)
     data_dict_4 = pp.make_data_keras(4)
 
-    data_dict = data_dict_0.copy()
-    data_dict = data_dict.update(data_dict_1)
-    data_dict = data_dict.update(data_dict_2)
-    data_dict = data_dict.update(data_dict_3)
-    data_dict = data_dict.update(data_dict_4)
+    data_dict = data_dict_0.update(data_dict_1.update(data_dict_2.update(data_dict_3.update(data_dict_4))))
+    #data_dict = data_dict.update(data_dict_1)
+    #data_dict = data_dict.update(data_dict_2)
+    #data_dict = data_dict.update(data_dict_3)
+    #data_dict = data_dict.update(data_dict_4)
 
     bodies, headlines, labels = data_dict["train"]
     bodies_t, headlines_t, labels_t = data_dict["test"]
