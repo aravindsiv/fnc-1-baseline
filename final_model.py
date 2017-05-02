@@ -23,4 +23,5 @@ if __name__ == '__main__':
     bodies = filtered_test_data[:,0]
     headlines = filtered_test_data[:,1]
     stances = filtered_test_data[:,2]
+    bodies, headlines, stances = pp.make_data_test(bodies,headlines,stances)
     y = model.predict([bodies,headlines])
