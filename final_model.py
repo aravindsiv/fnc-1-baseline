@@ -4,6 +4,8 @@ import numpy as np
 import argparse
 from sklearn.metrics import accuracy_score
 
+np.set_printoptions(threshold=np.nan)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-model', help='no | lstm | lstm_1 | gru', default='logistic')
@@ -18,20 +20,24 @@ if __name__ == '__main__':
     pp = PreProcessor()
     pp.preprocess_keras()
     test_data = pp.complete_test
-    filtered_test_data = pp.first_stage_predicition(test_data,base_string,flag) # 0 for logistic, svm , 1 for Neural Network
-    keras_data = []
-    
-    for i in range(filtered_test_data.shape[0]):
-        if filtered_test_data[i,2] != "unrelated":
-            keras_data.append(filtered_test_data[i])
+    filtered_test_data, filtered_test_labels, global_labels = pp.first_stage_predicition(test_data,base_string,flag) # 0 for logistic, svm , 1 for Neural Network
 
-    keras_data = np.array(keras_data)
 
     model = load_model('lstm_2.h5')
-    bodies = keras_data[:,0]
-    headlines = keras_data[:,1]
-    stances = keras_data[:,2]
+    bodies = filtered_test_data[:,0]
+    headlines = filtered_test_data[:,1]
+    stances = filtered_test_labels
 
     bodies, headlines, stances = pp.make_data_test(bodies,headlines,stances)
-    y = model.predict([bodies,headlines])
+
+    y = np.argmax(model.predict([bodies,headlines]),axis=1)
+
+    pred_ctr = 0
+
+    for i in range(global_labels.shape[0]):
+        if global_labels[i] == "related":
+            global_labels[i] = pp.rev_index[y[pred_ctr]]
+            pred_ctr += 1
+
+    print global_labels
 

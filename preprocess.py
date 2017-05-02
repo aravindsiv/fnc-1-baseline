@@ -76,9 +76,11 @@ class PreProcessor:
         stances = set(self.train_data[:,2])
         
         self.label_index = {} # labels_index["agree"]
+        self.rev_index = {} # rev_index[0]
         
         for i,j in enumerate(stances):
             self.label_index[j] = i
+            self.rev_index[i] = j
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
     
@@ -91,19 +93,25 @@ class PreProcessor:
             classifier=pickle.load(open(file_name,"rb"))
         else:
             classifier=load_model(file_name)
+        
         test_labels,test_data_buff=preprocess_func(test_data)
         pred_labels,normalized_test_labels=test_classifier(classifier,test_data_buff,test_labels)
-        filtered_test_data=[]
-        for i,j in enumerate(pred_labels):
-            if(model_type!=0):
-                buff=np.argmax(j)
-                j=reverse_dict[buff]
-            if(j!="unrelated"):      
-                 filtered_test_data.append(test_data[i])
-        print filtered_test_data[0:10]
-	filtered_test_data=np.array(filtered_test_data)    
-        return filtered_test_data
-        
+
+        global_labels = pred_labels
+        filtered_test_data = []
+        filtered_test_labels = []
+
+        for i in range(pred_labels.shape[0]):
+            if pred_labels[i] == "related" and normalized_test_labels[i] == "unrelated":
+                global_labels[i] = np.random.choice(["agree","disagree","discuss"])
+            elif pred_labels[i] == "related" and normalized_test_labels[i] == "related":
+                filtered_test_data.append(test_data[i,0:2])
+                filtered_test_labels.append(test_data[i,2])
+
+        filtered_test_data = np.array(filtered_test_data)
+        filtered_test_labels = np.array(filtered_test_labels)
+
+        return filtered_test_data, filtered_test_labels, global_labels        
         
     def preprocess_stageone(self):
         train_labels,train_data=preprocess_func(self.complete_train)
