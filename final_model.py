@@ -28,9 +28,9 @@ if __name__ == '__main__':
     keras_data = np.array(keras_data)
 
     model = load_model('lstm_2.h5')
-    bodies = filtered_test_data[:,0]
-    headlines = filtered_test_data[:,1]
-    stances = filtered_test_data[:,2]
+    bodies = keras_data[:,0]
+    headlines = keras_data[:,1]
+    stances = keras_data[:,2]
 
     bodies, headlines, stances = pp.make_data_test(bodies,headlines,stances)
     y = model.predict([bodies,headlines])
