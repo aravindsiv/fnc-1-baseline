@@ -4,6 +4,8 @@ import numpy as np
 import argparse
 from sklearn.metrics import accuracy_score
 
+np.set_printoptions(threshold=np.nan)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-model', help='no | lstm | lstm_1 | gru', default='logistic')
@@ -35,7 +37,7 @@ if __name__ == '__main__':
     for i in range(global_labels.shape[0]):
         if global_labels[i] == "related":
             global_labels[i] = pp.rev_index[y[pred_ctr]]
-            y += 1
+            pred_ctr += 1
 
     print global_labels
 
