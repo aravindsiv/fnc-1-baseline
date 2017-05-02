@@ -76,9 +76,11 @@ class PreProcessor:
         stances = set(self.train_data[:,2])
         
         self.label_index = {} # labels_index["agree"]
+        self.rev_index = {} # rev_index[0]
         
         for i,j in enumerate(stances):
             self.label_index[j] = i
+            self.rev_index[i] = j
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
     

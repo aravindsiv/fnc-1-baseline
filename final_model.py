@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     for i in range(global_labels.shape[0]):
         if global_labels[i] == "related":
-            global_labels[i] = y[pred_ctr]
+            global_labels[i] = pp.rev_index[y[pred_ctr]]
             y += 1
 
     print global_labels
