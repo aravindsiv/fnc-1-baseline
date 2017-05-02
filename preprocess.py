@@ -91,8 +91,8 @@ class PreProcessor:
             classifier=pickle.load(open(file_name,"rb"))
         else:
             classifier=load_model(file_name)
-        test_labels,test_data=preprocess_func(test_data)
-        pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
+        test_labels,test_data_buff=preprocess_func(test_data)
+        pred_labels,normalized_test_labels=test_classifier(classifier,test_data_buff,test_labels)
         filtered_test_data=[]
         for i,j in enumerate(pred_labels):
             if(model_type!=0):
@@ -100,7 +100,8 @@ class PreProcessor:
                 j=reverse_dict[buff]
             if(j!="unrelated"):      
                  filtered_test_data.append(test_data[i])
-        filtered_test_data=np.array(test_data)    
+        print filtered_test_data[0:10]
+	filtered_test_data=np.array(filtered_test_data)    
         return filtered_test_data
         
         
@@ -185,12 +186,12 @@ class PreProcessor:
         max_seq_length = 400
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
-        headlines_data = pad_sequences(headlines_data_test,maxlen=max_seq_length)
+        headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
 
-        labels = np.zeros((len(bodies_data,1)))
+        labels = np.zeros((len(bodies_data),1))
 
         for i in range(len(bodies_data)):
-            labels[i] = stances[i]
+            labels[i] = self.label_index[stances[i]]
 
         labels = to_categorical(labels)
 
