@@ -2,6 +2,7 @@ import cPickle as pickle
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
+from keras.models import load_model
 from collections import defaultdict
 from preprocess_ import preprocess_func
 from main_file import train_classifier,test_classifier
@@ -11,6 +12,7 @@ import unicodedata
 import cPickle as pickle
 def _normalize(text):
     return unicodedata.normalize('NFKD', text.decode('utf8')).encode('ascii', 'ignore')
+reverse_dict={1:"unrelated",0:"related"}
 
 class PreProcessor:
     def __init__(self,splits_folder="splits/",data_folder="fnc-1/"):
@@ -84,12 +86,18 @@ class PreProcessor:
         classifier=pickle.load(open(file_name,"rb"))
         return classifier
         
-    def first_stage_predicition(self,classifier,test_data):
-        classifier=pickle.load(open(file_name,"rb"))
+    def first_stage_predicition(self,test_data, file_name,model_type=0):
+        if(model_type==0): #0 for logidtic svm
+            classifier=pickle.load(open(file_name,"rb"))
+        else:
+            classifier=load_model(file_name)
         test_labels,test_data=preprocess_func(test_data)
         pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
         filtered_test_data=[]
         for i,j in enumerate(pred_labels):
+            if(model_type!=0):
+                buff=np.argmax(j)
+                j=reverse_dict[buff]
             if(j!="unrelated"):      
                  filtered_test_data.append(test_data[i])
         filtered_test_data=np.array(test_data)    
@@ -108,7 +116,14 @@ class PreProcessor:
         pickle.dump(test_labels,open("test_label.pk","wb"))
         pickle.dump(test_data,open("test_data.pk","wb"))
 
-        #print "Found %s unique tokens" %(len(self.tokenizer.word_index))  
+        #print "Found %s unique tokens" %(len(self.tokenizer.word_index)) 
+    
+    def preprocess_stageone_noreturn(self,train_data,test_data):
+        train_labels,train_data=preprocess_func(train_data)
+        test_labels,test_data=preprocess_func(test_data)
+        #classifier=train_classifier(train_data,train_labels)
+        #pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
+        return(train_labels,train_data,test_labels,test_data)        
        
 
     def make_data_fold(self,k,splits_folder="splits/"):
@@ -136,6 +151,52 @@ class PreProcessor:
 
         return train_data_k, test_data_k
     
+    
+    def make_data_fold_stageone(self,k,splits_folder="splits/"):
+        '''This function uses training_ids_k.txt as the cross-validation data, and the other files for training that
+        particular model, for stage one'''
+        train_data_k = []
+        test_data_k = []
+
+        test_ids = []
+        with open(splits_folder+"training_ids_"+str(k)+".txt") as f:
+            for l in f:
+                test_ids.append(int(l))
+
+        for i in range(self.complete_train.shape[0]):
+            if int(self.complete_train[i,3]) in test_ids:
+                test_data_k.append(self.complete_train[i,0:4])
+            else:
+                train_data_k.append(self.complete_train[i,0:4])
+
+        train_data_k = np.array(train_data_k)
+        test_data_k = np.array(test_data_k)
+
+        print "Number of training examples for fold %s: %s" %(k,len(train_data_k))
+        print "Number of test examples for fold %s: %s" %(k,len(test_data_k))
+        return train_data_k, test_data_k
+
+        return train_data_k, test_data_k
+
+    def make_data_test(self,bodies,headlines,stances):
+        bodies_sequence = self.tokenizer.texts_to_sequences(bodies)
+        headlines_sequence = self.tokenizer.texts_to_sequences(headlines)
+
+        max_seq_length = 400
+
+        bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
+        headlines_data = pad_sequences(headlines_data_test,maxlen=max_seq_length)
+
+        labels = np.zeros((len(bodies_data,1)))
+
+        for i in range(len(bodies_data)):
+            labels[i] = stances[i]
+
+        labels = to_categorical(labels)
+
+        return bodies_data, headlines_data, labels
+
+
     def make_data_keras(self,fold,mode="train"):
         train_data_k, test_data_k = self.make_data_fold(fold)
                 

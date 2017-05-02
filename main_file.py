@@ -5,7 +5,12 @@ import types
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn import svm
+from keras.models import Sequential
+from keras.layers import Dense, Activation
+from keras.utils import to_categorical
 
+label_dict={"related":0,"unrelated":1}
 
 def warn(*args, **kwargs):
     pass
@@ -35,9 +40,12 @@ def max_len2(train_data,key):
 
     return sum(max_length)/len(max_length)
 
-def train_classifier(train_data,train_labels):
+def train_classifier(train_data,train_labels,file_name,option="logistic"):
     print (func_list)
-    classifier = LogisticRegression(penalty='l1')
+    if(option=="logistic"):
+         classifier = LogisticRegression(penalty='l1')
+    elif(option=="svm"):
+        classifier = svm.SVC()
     training_data=[]
     training_labels=[]
     #train_data=[]
@@ -52,19 +60,40 @@ def train_classifier(train_data,train_labels):
     max_length=max_len(train_data, "hd_tok")
     for i,k in enumerate(train_data):
         obs=feature_extractor(k,max_length)
-        print (i)
+        #print (i)
         training_data.append(obs)
         #current_label=labels[i]
         current_label = train_labels[i]
-        if(current_label in ["agree","discuss","disagree"]):
-            current_label="related"
+        if(option=="nn"):
+            if(current_label in ["agree","discuss","disagree"]):
+                current_label=label_dict["related"]
+            else:
+                current_label=label_dict["unrelated"]
+        else:
+            if(current_label in ["agree","discuss","disagree"]):
+                current_label="related"
+            
         training_labels.append(current_label)
     print("Training Started")
     print(training_data[:3])
+    print(training_labels[:3])
     training_vector=np.array(training_data)
     training_labels=np.array(training_labels)
-    classifier.fit(training_vector,training_labels)
-    return classifier
+    if option == "nn":
+        model = Sequential()
+        model.add(Dense(4,input_dim=3))
+        model.add(Activation('relu'))
+        model.add(Dense(2))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        model.summary()
+        model.fit(training_vector,to_categorical(training_labels),epochs=5,batch_size=32)
+        model.save(file_name+".h5") # File should be a .h5 file.
+        return model
+    else:
+        classifier.fit(training_vector,training_labels)
+        pickle.dump(classifier,open(file_name,"wb"))
+        return classifier
 
 def test_classifier(classifier,test_data,labels,max_length=0):
 
@@ -86,6 +115,7 @@ def test_classifier(classifier,test_data,labels,max_length=0):
         test_labels.append(current_label)
     test_vector=np.array(testing_data)
     pred_labels=classifier.predict(test_vector)
+    # model.predict(test_vector) # if you are using keras
     #return test_labels,pred_labels,testing_data,test_hd,test_body
     return pred_labels,test_labels
 

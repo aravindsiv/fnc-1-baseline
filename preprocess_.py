@@ -27,7 +27,7 @@ def preprocess_func(dataset):
     body_id=dataset[:,3]
     for i,k in enumerate(bodies):
 
-        print(i)
+        #print(i)
         buff={}
         #buff["id"]=k['Body ID']
         buff["id"]=body_id[i]
