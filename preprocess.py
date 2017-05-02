@@ -102,9 +102,7 @@ class PreProcessor:
         filtered_test_labels = []
 
         for i in range(pred_labels.shape[0]):
-            if pred_labels[i] == "related" and normalized_test_labels[i] == "unrelated":
-                global_labels[i] = np.random.choice(["agree","disagree","discuss"])
-            elif pred_labels[i] == "related" and normalized_test_labels[i] == "related":
+            if pred_labels[i] == "related":
                 filtered_test_data.append(test_data[i,0:2])
                 filtered_test_labels.append(test_data[i,2])
 
