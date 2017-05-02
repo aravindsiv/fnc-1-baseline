@@ -16,12 +16,18 @@ if __name__ == '__main__':
         flag=1
         base_string+=".h5"
     pp = PreProcessor()
+    pp.preprocess_keras()
     test_data = pp.complete_test
     filtered_test_data = pp.first_stage_predicition(test_data,base_string,flag) # 0 for logistic, svm , 1 for Neural Network
-    print "got filtered data"
-    print filtered_test_data.shape
+    keras_data = []
+    for i in range(filtered_test_data.shape[0]):
+      
+
     model = load_model('lstm_2.h5')
     bodies = filtered_test_data[:,0]
     headlines = filtered_test_data[:,1]
     stances = filtered_test_data[:,2]
+
+    bodies, headlines, stances = pp.make_data_test(bodies,headlines,stances)
     y = model.predict([bodies,headlines])
+
