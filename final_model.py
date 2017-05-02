@@ -28,5 +28,14 @@ if __name__ == '__main__':
 
     bodies, headlines, stances = pp.make_data_test(bodies,headlines,stances)
 
-    y = (model.predict([bodies,headlines]),axis=1)
+    y = np.argmax(model.predict([bodies,headlines]),axis=1)
+
+    pred_ctr = 0
+
+    for i in range(global_labels.shape[0]):
+        if global_labels[i] == "related":
+            global_labels[i] = y[pred_ctr]
+            y += 1
+
+    print global_labels
 
