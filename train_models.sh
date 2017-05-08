@@ -1,9 +1,10 @@
-declare -a arr=("no" "lstm" "gru")
+#!/usr/bin/env/bash
+declare -a arr=("lstm" "gru")
 
-for i in `seq 0 4`;
+for i in "${arr[@]}";
 do
-	for j in "${arr[@]}";
+	for j in `seq 2 4`;
 	do
-		python keras_models.py -fold $i -rnn $j
+		python keras_models.py -fold $j -rnn $i 
 	done
 done

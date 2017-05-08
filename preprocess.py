@@ -76,9 +76,11 @@ class PreProcessor:
         stances = set(self.train_data[:,2])
         
         self.label_index = {} # labels_index["agree"]
+        self.rev_index = {} # rev_index[0]
         
         for i,j in enumerate(stances):
             self.label_index[j] = i
+            self.rev_index[i] = j
 
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
     
@@ -91,18 +93,23 @@ class PreProcessor:
             classifier=pickle.load(open(file_name,"rb"))
         else:
             classifier=load_model(file_name)
-        test_labels,test_data=preprocess_func(test_data)
-        pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
-        filtered_test_data=[]
-        for i,j in enumerate(pred_labels):
-            if(model_type!=0):
-                buff=np.argmax(j)
-                j=reverse_dict[buff]
-            if(j!="unrelated"):      
-                 filtered_test_data.append(test_data[i])
-        filtered_test_data=np.array(test_data)    
-        return filtered_test_data
         
+        test_labels,test_data_buff=preprocess_func(test_data)
+        pred_labels,normalized_test_labels=test_classifier(classifier,test_data_buff,test_labels)
+
+        global_labels = pred_labels
+        filtered_test_data = []
+        filtered_test_labels = []
+
+        for i in range(pred_labels.shape[0]):
+            if pred_labels[i] == "related":
+                filtered_test_data.append(test_data[i,0:2])
+                filtered_test_labels.append(test_data[i,2])
+
+        filtered_test_data = np.array(filtered_test_data)
+        filtered_test_labels = np.array(filtered_test_labels)
+
+        return filtered_test_data, filtered_test_labels, global_labels        
         
     def preprocess_stageone(self):
         train_labels,train_data=preprocess_func(self.complete_train)
@@ -123,7 +130,7 @@ class PreProcessor:
         test_labels,test_data=preprocess_func(test_data)
         #classifier=train_classifier(train_data,train_labels)
         #pred_labels,normalized_test_labels=test_classifier(classifier,test_data,test_labels)
-        return(train_labels,train_data,test_labels,test_data)
+        return(train_labels,train_data,test_labels,test_data)        
        
 
     def make_data_fold(self,k,splits_folder="splits/"):
@@ -177,6 +184,26 @@ class PreProcessor:
         return train_data_k, test_data_k
 
         return train_data_k, test_data_k
+
+    def make_data_test(self,bodies,headlines,stances):
+        bodies_sequence = self.tokenizer.texts_to_sequences(bodies)
+        headlines_sequence = self.tokenizer.texts_to_sequences(headlines)
+
+        max_seq_length = 400
+
+        bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
+        headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)
+
+        labels = np.zeros((len(bodies_data),1))
+
+        for i in range(len(bodies_data)):
+            labels[i] = self.label_index[stances[i]]
+
+        labels = to_categorical(labels)
+
+        return bodies_data, headlines_data, labels
+
+
     def make_data_keras(self,fold,mode="train"):
         train_data_k, test_data_k = self.make_data_fold(fold)
                 
