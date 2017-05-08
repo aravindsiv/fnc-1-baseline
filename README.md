@@ -84,7 +84,7 @@ Score: 3538.0 out of 4448.5	(79.53%)
 To train the first stage model run ``stageone_train.sh`` file. The file will train svm, logistic, neural net on the 5 folds of data. The models are saved in ./models. Each model is saved with the filename in the form of 'stage_onefoldmodel' , where ``stage_one`` remains constant and model =[svm, logistic, neural net] for the types of algorithms used to train the model and fold=[0,1,2,3,4] for 5 folds. For example, 
 The logistic regression trained on 4th fold will be saved as 'stage_one3logistic' under ./models folder.
 
-##Training the second stage model
+###Training the second stage model
 To train the second stage model run ``keras_models.py`` file. The file will train one of the following algorithms :(lstm, gru and a neural net which takes the sum of its input word embeddings) on a particular fold of data. Both the type of algorithm and the fold are detemined by the below parameters to the file:
 -rnn: The type of neural net being trained on the data. The user can select from the following options(no, lstm, gru) to train a feed forward network based on sum of word embeddings , lstm  or gru respectively.
 -fold: The fold of data on which the model is to be trained and tested. The options are on of the following: [0,1,2,3,4] 
