@@ -82,6 +82,9 @@ class PreProcessor:
             self.label_index[j] = i
             self.rev_index[i] = j
 
+	self.label_index["unrelated"] = 3
+	self.rev_index[3] = "unrelated"
+
         print "Found %s unique tokens" %(len(self.tokenizer.word_index))
     
     def first_stage_model(self,file_name):
@@ -96,12 +99,17 @@ class PreProcessor:
         
         test_labels,test_data_buff=preprocess_func(test_data)
         pred_labels,normalized_test_labels=test_classifier(classifier,test_data_buff,test_labels)
-
+        buff_pred_labels=[]  
+        for i,k in enumerate(pred_labels):
+            #print k
+            buff_pred_labels.append(reverse_dict[np.argmax(k)])
+        pred_labels=np.array(buff_pred_labels)
         global_labels = pred_labels
         filtered_test_data = []
         filtered_test_labels = []
 
         for i in range(pred_labels.shape[0]):
+            
             if pred_labels[i] == "related":
                 filtered_test_data.append(test_data[i,0:2])
                 filtered_test_labels.append(test_data[i,2])
@@ -189,7 +197,7 @@ class PreProcessor:
         bodies_sequence = self.tokenizer.texts_to_sequences(bodies)
         headlines_sequence = self.tokenizer.texts_to_sequences(headlines)
 
-        max_seq_length = 400
+        max_seq_length = 300
 
         bodies_data = pad_sequences(bodies_sequence,maxlen=max_seq_length)
         headlines_data = pad_sequences(headlines_sequence,maxlen=max_seq_length)

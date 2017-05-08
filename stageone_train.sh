@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-declare -a arr=("logistic" "svm")
+declare -a arr=("logistic" "svm","nn")
 
 for i in `seq 0 4`;
 do
