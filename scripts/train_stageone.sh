@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 declare -a arr=("logistic" "svm","nn")
-
+cd ..
 for i in `seq 0 4`;
 do
 	for j in "${arr[@]}";
