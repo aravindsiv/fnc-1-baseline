@@ -2,12 +2,16 @@ from csv import DictReader
 
 
 class DataSet():
+<<<<<<< HEAD
     def __init__(self, path="../fnc-1"):
+=======
+    def __init__(self, name="train", path="fnc-1"):
+>>>>>>> 7fb74cbba2739ca938cdd6da6bd419e8572aeab0
         self.path = path
 
         print("Reading dataset")
-        bodies = "train_bodies.csv"
-        stances = "train_stances.csv"
+        bodies = name+"_bodies.csv"
+        stances = name+"_stances.csv"
 
         self.stances = self.read(stances)
         articles = self.read(bodies)
